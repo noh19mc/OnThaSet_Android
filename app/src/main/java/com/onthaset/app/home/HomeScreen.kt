@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.onthaset.app.BuildConfig
 import com.onthaset.app.ads.AdMobBanner
 import com.onthaset.app.auth.AuthState
 import com.onthaset.app.auth.AuthViewModel
@@ -36,6 +37,7 @@ fun HomeScreen(
     onOpenWeather: () -> Unit,
     onOpenBikes: () -> Unit,
     onOpenEventPhotos: () -> Unit,
+    onOpenAdmin: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.authState.collectAsStateWithLifecycle()
@@ -122,6 +124,17 @@ fun HomeScreen(
                 shape = RoundedCornerShape(10.dp),
             ) {
                 Text("My Profile", color = Color(0xFFFFD600))
+            }
+            if (BuildConfig.ADMIN_PIN.isNotBlank()) {
+                OutlinedButton(
+                    onClick = onOpenAdmin,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(10.dp),
+                ) {
+                    Text("Admin", color = Color(0xFFFFD600))
+                }
             }
             OutlinedButton(
                 onClick = viewModel::signOut,

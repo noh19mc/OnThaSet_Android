@@ -33,6 +33,7 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localOrEmpty("SUPABASE_ANON_KEY")}\"")
         buildConfigField("String", "MAPS_API_KEY", "\"${localOrEmpty("MAPS_API_KEY")}\"")
         buildConfigField("String", "ADMOB_BANNER_UNIT_ID", "\"${localOrEmpty("ADMOB_BANNER_UNIT_ID")}\"")
+        buildConfigField("String", "ADMIN_PIN", "\"${localOrEmpty("ADMIN_PIN")}\"")
 
         // Manifest placeholders. Empty ADMOB_APP_ID would fail the SDK init, so fall back to
         // Google's official "test" app ID when no key is configured — keeps debug builds working.

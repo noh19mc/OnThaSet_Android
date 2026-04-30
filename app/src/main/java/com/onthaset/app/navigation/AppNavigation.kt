@@ -36,6 +36,7 @@ import com.onthaset.app.profile.ui.EditProfileScreen
 import com.onthaset.app.profile.ui.ProfileScreen
 import com.onthaset.app.bikes.ui.AddBikeBuildScreen
 import com.onthaset.app.bikes.ui.BikesScreen
+import com.onthaset.app.admin.ui.AdminScreen
 import com.onthaset.app.eventphotos.ui.AddEventPhotoScreen
 import com.onthaset.app.eventphotos.ui.EventPhotosScreen
 import com.onthaset.app.weather.ui.WeatherScreen
@@ -81,7 +82,11 @@ fun AppNavigation() {
                     onOpenWeather = { navController.navigate(Routes.WEATHER) },
                     onOpenBikes = { navController.navigate(Routes.BIKE_BUILDS) },
                     onOpenEventPhotos = { navController.navigate(Routes.EVENT_PHOTOS) },
+                    onOpenAdmin = { navController.navigate(Routes.ADMIN) },
                 )
+            }
+            composable(Routes.ADMIN) {
+                AdminScreen(onBack = { navController.popBackStack() })
             }
             composable(Routes.EVENTS) {
                 EventsScreen(

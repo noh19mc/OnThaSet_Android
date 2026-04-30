@@ -26,6 +26,17 @@ class EventsRepository @Inject constructor(
             limit(1)
         }.decodeSingleOrNull()
 
+    suspend fun all(): List<Event> =
+        postgrest.from("events").select {
+            order("date", Order.ASCENDING)
+        }.decodeList()
+
+    suspend fun delete(id: String) {
+        postgrest.from("events").delete {
+            filter { eq("id", id) }
+        }
+    }
+
     suspend fun create(
         title: String,
         date: Instant,

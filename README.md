@@ -26,6 +26,8 @@ app/src/main/java/com/onthaset/app/
 ├── profile/      # User profile view + edit (text fields and photos)
 ├── bikes/        # Bike Builds feed + create with before/after photos
 ├── eventphotos/  # Ride Photos feed + upload (event_photos table)
+├── ads/          # AdMob banner Composable
+├── admin/        # PIN-gated event moderation
 ├── weather/      # 5-day Ride Forecast (Open-Meteo) with rider safety chip
 ├── imaging/      # Image compression + Supabase Storage upload helpers
 ├── home/         # Logged-in landing screen
@@ -83,6 +85,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] National Calendar map view — Compose Google Maps with category-colored pins (requires `MAPS_API_KEY`; renders a "no key" placeholder otherwise)
 - [x] Ride Photos — feed + upload (event_photos table, event-photos bucket)
 - [x] AdMob banner — anchored on Home (renders only when `ADMOB_APP_ID` + `ADMOB_BANNER_UNIT_ID` are configured; SDK falls back to Google's test app ID otherwise so the SDK still initializes cleanly)
+- [x] Admin v1 — PIN-gated event moderation (delete events). Reports / ad approvals deferred.
 - [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays
