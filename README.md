@@ -1,6 +1,6 @@
 # OnThaSet_Android
 
-**Android port by NOH** ([@noh19mc](https://github.com/noh19mc)) · iOS original by [@RHayes1302](https://github.com/RHayes1302)
+**Android port by NOH (Maurice Grose)** ([@noh19mc](https://github.com/noh19mc)) · iOS original by [@RHayes1302](https://github.com/RHayes1302)
 
 Android port of the **On Tha Set** iOS app — a community platform for motorcycle riders to discover and share local rides, rallies, MC annuals, charity events, and more. The iOS version is on the App Store; this repo is the in-progress Android sibling that talks to the same Supabase backend so users on both platforms share data.
 
