@@ -35,6 +35,7 @@ class CreateEventViewModel @Inject constructor(
     private val profiles: ProfileRepository,
     private val auth: AuthRepository,
     private val storage: StorageRepository,
+    private val geocoder: Geocoder,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
@@ -88,6 +89,12 @@ class CreateEventViewModel @Inject constructor(
                 ?: signedIn.email?.substringBefore("@")
                 ?: "Anonymous"
 
+            // Geocode the full street-level address so the event lands on the map. iOS
+            // uses CLGeocoder; we use Nominatim. Best-effort — on failure we fall through
+            // to (0, 0), matching iOS's behavior when CLGeocoder returns no placemark.
+            val fullAddress = listOf(street, city, state, zip).filter { it.isNotBlank() }.joinToString(", ")
+            val coords = geocoder.geocode(fullAddress)
+
             events.create(
                 title = title.trim(),
                 date = date,
@@ -95,8 +102,8 @@ class CreateEventViewModel @Inject constructor(
                 locationName = combinedLocation,
                 details = details.trim(),
                 price = price.trim().ifBlank { "0.00" },
-                latitude = 0.0,
-                longitude = 0.0,
+                latitude = coords?.latitude ?: 0.0,
+                longitude = coords?.longitude ?: 0.0,
                 postedByUserId = signedIn.userId,
                 postedByName = displayName,
                 imageUrl = flyerUrl,
