@@ -19,6 +19,7 @@ class StorageRepository @Inject constructor(
 object Buckets {
     const val PROFILE_IMAGES = "profile-images"
     const val EVENT_FLYERS = "event-flyers"
+    const val EVENT_PHOTOS = "event-photos"
     const val BIKE_PROGRESS = "bike-progress"
 }
 

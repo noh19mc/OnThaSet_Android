@@ -25,6 +25,7 @@ app/src/main/java/com/onthaset/app/
 ├── events/       # Events list, detail, and the National Run Calendar
 ├── profile/      # User profile view + edit (text fields and photos)
 ├── bikes/        # Bike Builds feed + create with before/after photos
+├── eventphotos/  # Ride Photos feed + upload (event_photos table)
 ├── weather/      # 5-day Ride Forecast (Open-Meteo) with rider safety chip
 ├── imaging/      # Image compression + Supabase Storage upload helpers
 ├── home/         # Logged-in landing screen
@@ -63,8 +64,9 @@ Both clients use the same Supabase project. Tables touched by Android so far:
 | `users`  | `apple_user_id`, `email`, `display_name`, `bio`, `hometown`, `club`, `favorite_ride`, `riding_since`, `preferred_ride_type`, `favorite_route`, `instagram_handle`, `tiktok_handle`, `youtube_channel`, `facebook_handle`, `profile_image_url`, `background_image_url` |
 | `events` | `id`, `title`, `date`, `category`, `location_name`, `details`, `price`, `latitude`, `longitude`, `posted_by_user_id`, `posted_by_name`, `created_at`, `image_url` |
 | `bike_builds` | `id`, `user_id`, `modification_title`, `note`, `before_image_url`, `after_image_url`, `bike_make`, `bike_model`, `bike_year`, `created_at` |
+| `event_photos` | `id`, `uploaded_by`, `event_name`, `event_date`, `location`, `caption`, `image_url`, `created_at` |
 
-Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images), `bike-progress` (before/after build photos).
+Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images), `bike-progress` (before/after build photos), `event-photos` (ride photos).
 
 > Note: the iOS app stores the Supabase auth UUID in the `apple_user_id` column even for email-signup users. Android matches that convention so both clients read and write the same row per user.
 
@@ -79,6 +81,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Bike Builds — feed + post with before/after photos
 - [x] Event creation — title, category, date+time picker, pipe-delimited location, optional flyer upload (geocoding to lat/lng deferred — events posted from Android won't show on the map until we add it)
 - [x] National Calendar map view — Compose Google Maps with category-colored pins (requires `MAPS_API_KEY`; renders a "no key" placeholder otherwise)
+- [x] Ride Photos — feed + upload (event_photos table, event-photos bucket)
 - [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays

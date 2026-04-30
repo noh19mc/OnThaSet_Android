@@ -36,6 +36,8 @@ import com.onthaset.app.profile.ui.EditProfileScreen
 import com.onthaset.app.profile.ui.ProfileScreen
 import com.onthaset.app.bikes.ui.AddBikeBuildScreen
 import com.onthaset.app.bikes.ui.BikesScreen
+import com.onthaset.app.eventphotos.ui.AddEventPhotoScreen
+import com.onthaset.app.eventphotos.ui.EventPhotosScreen
 import com.onthaset.app.weather.ui.WeatherScreen
 
 @Composable
@@ -78,6 +80,7 @@ fun AppNavigation() {
                     onOpenCalendar = { navController.navigate(Routes.NATIONAL_RUN_CALENDAR) },
                     onOpenWeather = { navController.navigate(Routes.WEATHER) },
                     onOpenBikes = { navController.navigate(Routes.BIKE_BUILDS) },
+                    onOpenEventPhotos = { navController.navigate(Routes.EVENT_PHOTOS) },
                 )
             }
             composable(Routes.EVENTS) {
@@ -138,6 +141,20 @@ fun AppNavigation() {
             composable(Routes.ADD_BIKE_BUILD) {
                 val parentEntry = remember(it) { navController.getBackStackEntry(Routes.BIKE_BUILDS) }
                 AddBikeBuildScreen(
+                    onBack = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() },
+                    viewModel = androidx.hilt.navigation.compose.hiltViewModel(parentEntry),
+                )
+            }
+            composable(Routes.EVENT_PHOTOS) {
+                EventPhotosScreen(
+                    onBack = { navController.popBackStack() },
+                    onAdd = { navController.navigate(Routes.ADD_EVENT_PHOTO) },
+                )
+            }
+            composable(Routes.ADD_EVENT_PHOTO) {
+                val parentEntry = remember(it) { navController.getBackStackEntry(Routes.EVENT_PHOTOS) }
+                AddEventPhotoScreen(
                     onBack = { navController.popBackStack() },
                     onSaved = { navController.popBackStack() },
                     viewModel = androidx.hilt.navigation.compose.hiltViewModel(parentEntry),

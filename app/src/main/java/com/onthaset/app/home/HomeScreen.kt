@@ -34,6 +34,7 @@ fun HomeScreen(
     onOpenCalendar: () -> Unit,
     onOpenWeather: () -> Unit,
     onOpenBikes: () -> Unit,
+    onOpenEventPhotos: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.authState.collectAsStateWithLifecycle()
@@ -102,6 +103,15 @@ fun HomeScreen(
                 shape = RoundedCornerShape(10.dp),
             ) {
                 Text("Bike Builds", color = Color(0xFFFFD600))
+            }
+            OutlinedButton(
+                onClick = onOpenEventPhotos,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                Text("Ride Photos", color = Color(0xFFFFD600))
             }
             OutlinedButton(
                 onClick = onOpenProfile,
