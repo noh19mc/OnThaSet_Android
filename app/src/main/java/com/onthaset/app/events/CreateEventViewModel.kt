@@ -27,6 +27,7 @@ data class CreateEventState(
     val error: String? = null,
     val flyerUri: Uri? = null,
     val justSaved: Boolean = false,
+    val needsSubscription: Boolean = false,
 )
 
 @HiltViewModel
@@ -68,6 +69,16 @@ class CreateEventViewModel @Inject constructor(
         val signedIn = auth.state.first { it !is AuthState.Loading } as? AuthState.SignedIn
         if (signedIn == null) {
             _state.value = _state.value.copy(error = "Sign in to post.")
+            return@launch
+        }
+
+        // Match iOS: only subscribers can post events.
+        val profile = runCatching { profiles.byUserId(signedIn.userId) }.getOrNull()
+        if (profile?.hasSubscription != true) {
+            _state.value = _state.value.copy(
+                error = "Posting events requires a subscription.",
+                needsSubscription = true,
+            )
             return@launch
         }
 

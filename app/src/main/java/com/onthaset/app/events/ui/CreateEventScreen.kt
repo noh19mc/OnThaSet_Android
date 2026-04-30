@@ -74,6 +74,7 @@ private val FieldBg = Color(0x14FFFFFF)
 fun CreateEventScreen(
     onBack: () -> Unit,
     onSaved: () -> Unit,
+    onSubscribe: () -> Unit,
     viewModel: CreateEventViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -82,6 +83,12 @@ fun CreateEventScreen(
         if (state.justSaved) {
             viewModel.reset()
             onSaved()
+        }
+    }
+    LaunchedEffect(state.needsSubscription) {
+        if (state.needsSubscription) {
+            viewModel.reset()
+            onSubscribe()
         }
     }
 

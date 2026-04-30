@@ -126,6 +126,10 @@ fun AppNavigation() {
                 CreateEventScreen(
                     onBack = { navController.popBackStack() },
                     onSaved = { navController.popBackStack() },
+                    onSubscribe = {
+                        navController.popBackStack()
+                        navController.navigate(Routes.PAYWALL)
+                    },
                 )
             }
             composable(

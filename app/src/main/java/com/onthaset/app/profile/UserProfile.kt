@@ -26,6 +26,7 @@ data class UserProfile(
     @SerialName("facebook_handle") val facebookHandle: String = "",
     @SerialName("profile_image_url") val profileImageUrl: String? = null,
     @SerialName("background_image_url") val backgroundImageUrl: String? = null,
+    @SerialName("has_subscription") val hasSubscription: Boolean = false,
 )
 
 @Serializable
