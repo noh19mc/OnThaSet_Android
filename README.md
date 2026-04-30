@@ -11,6 +11,7 @@ Android port of the **On Tha Set** iOS app — a community platform for motorcyc
 - **Navigation Compose** for routing
 - **Supabase Kotlin SDK** (`auth-kt`, `postgrest-kt`, `storage-kt`, `realtime-kt`) — shares the iOS app's project
 - **Coil** for async image loading
+- **Ktor** HTTP client (with JSON content negotiation) for non-Supabase APIs (Open-Meteo)
 - **kotlinx-datetime** for event timestamps
 - **AndroidX DataStore** for local prefs
 - Built with **Gradle 9.5** + **AGP 8.13.2**, JDK 17 toolchain, `minSdk 26` / `targetSdk 35`
@@ -19,9 +20,10 @@ Android port of the **On Tha Set** iOS app — a community platform for motorcyc
 
 ```
 app/src/main/java/com/onthaset/app/
-├── auth/         # Supabase email/password sign-in, sign-up, password reset
+├── auth/         # Supabase email/password sign-in, sign-up, email confirmation, password reset
 ├── events/       # Events list, detail, and the National Run Calendar
 ├── profile/      # User profile view + edit (text fields and photos)
+├── weather/      # 5-day Ride Forecast (Open-Meteo) with rider safety chip
 ├── imaging/      # Image compression + Supabase Storage upload helpers
 ├── home/         # Logged-in landing screen
 └── navigation/   # Routes + auth-gated NavHost
@@ -67,6 +69,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Events — upcoming list with iOS-matching weekend cutoff, detail screen
 - [x] Profile — view + edit text fields, profile/cover photo upload
 - [x] National Run Calendar — list view with month picker + category filter chips
+- [x] Ride Forecast — Open-Meteo 5-day forecast with rider safety messaging based on wind speed
 - [ ] Bike Builds — list + create with before/after photos
 - [ ] Event creation + Google Play Billing (replaces the iOS StoreKit flow)
 - [ ] Ride Forecast — 5-day weather for current location or event location

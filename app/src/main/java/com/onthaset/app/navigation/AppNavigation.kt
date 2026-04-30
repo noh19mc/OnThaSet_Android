@@ -32,6 +32,7 @@ import com.onthaset.app.events.ui.NationalCalendarScreen
 import com.onthaset.app.home.HomeScreen
 import com.onthaset.app.profile.ui.EditProfileScreen
 import com.onthaset.app.profile.ui.ProfileScreen
+import com.onthaset.app.weather.ui.WeatherScreen
 
 @Composable
 fun AppNavigation() {
@@ -71,6 +72,7 @@ fun AppNavigation() {
                     onOpenEvents = { navController.navigate(Routes.EVENTS) },
                     onOpenProfile = { navController.navigate(Routes.PROFILE) },
                     onOpenCalendar = { navController.navigate(Routes.NATIONAL_RUN_CALENDAR) },
+                    onOpenWeather = { navController.navigate(Routes.WEATHER) },
                 )
             }
             composable(Routes.EVENTS) {
@@ -107,7 +109,9 @@ fun AppNavigation() {
                 )
             }
             composable(Routes.BIKE_BUILDS) { Placeholder("Bike Builds") }
-            composable(Routes.WEATHER) { Placeholder("Ride Forecast") }
+            composable(Routes.WEATHER) {
+                WeatherScreen(onBack = { navController.popBackStack() })
+            }
         }
     }
 }
