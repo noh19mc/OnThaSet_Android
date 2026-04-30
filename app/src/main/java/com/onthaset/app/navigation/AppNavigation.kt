@@ -35,6 +35,7 @@ import com.onthaset.app.home.HomeScreen
 import com.onthaset.app.profile.ui.EditProfileScreen
 import com.onthaset.app.profile.ui.OnboardingScreen
 import com.onthaset.app.profile.ui.ProfileScreen
+import com.onthaset.app.profile.ui.PublicProfileScreen
 import com.onthaset.app.bikes.ui.AddBikeBuildScreen
 import com.onthaset.app.bikes.ui.BikesScreen
 import com.onthaset.app.admin.ui.AdminScreen
@@ -121,7 +122,18 @@ fun AppNavigation() {
                 arguments = listOf(navArgument("id") { type = NavType.StringType }),
             ) { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id").orEmpty()
-                EventDetailScreen(eventId = id, onBack = { navController.popBackStack() })
+                EventDetailScreen(
+                    eventId = id,
+                    onBack = { navController.popBackStack() },
+                    onOpenPoster = { userId -> navController.navigate(Routes.publicProfile(userId)) },
+                )
+            }
+            composable(
+                route = Routes.PUBLIC_PROFILE,
+                arguments = listOf(navArgument("userId") { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId").orEmpty()
+                PublicProfileScreen(userId = userId, onBack = { navController.popBackStack() })
             }
             composable(Routes.NATIONAL_RUN_CALENDAR) {
                 NationalCalendarScreen(

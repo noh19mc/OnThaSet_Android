@@ -12,6 +12,9 @@ object Routes {
     const val PROFILE = "profile"
     const val EDIT_PROFILE = "profile/edit"
     const val ONBOARDING = "profile/onboarding"
+    const val PUBLIC_PROFILE = "rider/{userId}"
+
+    fun publicProfile(userId: String) = "rider/$userId"
     const val BIKE_BUILDS = "bikes"
     const val ADD_BIKE_BUILD = "bikes/new"
     const val WEATHER = "weather"

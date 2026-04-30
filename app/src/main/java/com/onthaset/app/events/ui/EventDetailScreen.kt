@@ -1,6 +1,7 @@
 package com.onthaset.app.events.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +46,7 @@ private val Yellow = Color(0xFFFFD600)
 fun EventDetailScreen(
     eventId: String,
     onBack: () -> Unit,
+    onOpenPoster: (String) -> Unit,
     viewModel: EventDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(eventId) { viewModel.load(eventId) }
@@ -107,7 +109,13 @@ fun EventDetailScreen(
                 LabelValue("Where", e.locationName)
                 if (e.price.isNotBlank()) LabelValue("Price", e.price)
                 if (e.details.isNotBlank()) LabelValue("Details", e.details)
-                LabelValue("Posted by", e.postedByName.ifBlank { "Unknown rider" })
+                ClickableLabelValue(
+                    label = "Posted by",
+                    value = e.postedByName.ifBlank { "Unknown rider" },
+                    onClick = if (e.postedByUserId.isNotBlank()) {
+                        { onOpenPoster(e.postedByUserId) }
+                    } else null,
+                )
             }
         }
     }
@@ -119,5 +127,21 @@ private fun LabelValue(label: String, value: String) {
         Text(label.uppercase(), color = Color.Gray, fontWeight = FontWeight.Bold, fontSize = 11.sp)
         Spacer(Modifier.height(2.dp))
         Text(value, color = Color.White, fontSize = 15.sp)
+    }
+}
+
+@Composable
+private fun ClickableLabelValue(label: String, value: String, onClick: (() -> Unit)?) {
+    Column(
+        modifier = if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier,
+    ) {
+        Text(label.uppercase(), color = Color.Gray, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+        Spacer(Modifier.height(2.dp))
+        Text(
+            value,
+            color = if (onClick != null) Yellow else Color.White,
+            fontSize = 15.sp,
+            fontWeight = if (onClick != null) FontWeight.Bold else FontWeight.Normal,
+        )
     }
 }
