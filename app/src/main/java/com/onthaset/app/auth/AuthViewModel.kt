@@ -16,6 +16,9 @@ data class AuthFormState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val resetEmailSent: Boolean = false,
+    /** Email address awaiting confirmation. Non-null = show "check your email" UI. */
+    val pendingConfirmation: String? = null,
+    val resendInfo: String? = null,
 )
 
 @HiltViewModel
@@ -55,7 +58,27 @@ class AuthViewModel @Inject constructor(
         _form.update { it.copy(isLoading = true, error = null) }
         runCatching { repo.signUp(email, password) }
             .onFailure { e -> _form.update { it.copy(isLoading = false, error = e.message ?: "Sign up failed") } }
-            .onSuccess { _form.update { it.copy(isLoading = false) } }
+            .onSuccess { result ->
+                _form.update {
+                    when (result) {
+                        SignUpResult.SignedIn -> it.copy(isLoading = false)
+                        is SignUpResult.NeedsConfirmation ->
+                            it.copy(isLoading = false, pendingConfirmation = result.email)
+                    }
+                }
+            }
+    }
+
+    fun resendConfirmation() = viewModelScope.launch {
+        val target = _form.value.pendingConfirmation ?: return@launch
+        _form.update { it.copy(isLoading = true, error = null, resendInfo = null) }
+        runCatching { repo.resendConfirmation(target) }
+            .onFailure { e -> _form.update { it.copy(isLoading = false, error = e.message ?: "Couldn't resend") } }
+            .onSuccess { _form.update { it.copy(isLoading = false, resendInfo = "Confirmation email sent.") } }
+    }
+
+    fun acknowledgeConfirmation() = _form.update {
+        it.copy(pendingConfirmation = null, resendInfo = null)
     }
 
     fun resetPassword(email: String) = viewModelScope.launch {

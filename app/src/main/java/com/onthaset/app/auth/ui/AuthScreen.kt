@@ -65,6 +65,23 @@ fun AuthScreen(
 
     val form by viewModel.form.collectAsStateWithLifecycle()
 
+    if (form.pendingConfirmation != null) {
+        ConfirmationPendingScreen(
+            email = form.pendingConfirmation!!,
+            isLoading = form.isLoading,
+            error = form.error,
+            info = form.resendInfo,
+            onResend = viewModel::resendConfirmation,
+            onBackToSignIn = {
+                viewModel.acknowledgeConfirmation()
+                mode = Mode.SignIn
+                password = ""
+                confirm = ""
+            },
+        )
+        return
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -259,6 +276,71 @@ private fun DarkOutlinedField(
             unfocusedBorderColor = Yellow.copy(alpha = 0.3f),
         ),
     )
+}
+
+@Composable
+private fun ConfirmationPendingScreen(
+    email: String,
+    isLoading: Boolean,
+    error: String?,
+    info: String?,
+    onResend: () -> Unit,
+    onBackToSignIn: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(horizontal = 28.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(18.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            OnThaSetShield(size = 96.dp)
+            Text("CHECK YOUR INBOX", color = Color.White, fontWeight = FontWeight.Black, fontSize = 22.sp)
+            Text(
+                "We sent a confirmation link to",
+                color = Color.Gray,
+                fontSize = 14.sp,
+            )
+            Text(email, color = Yellow, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Text(
+                "Tap the link in that email, then come back and sign in.",
+                color = Color.Gray,
+                fontSize = 13.sp,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+
+            info?.let { Text(it, color = Color(0xFF8DD681), fontSize = 13.sp) }
+            error?.let { Text(it, color = Color(0xFFFF6B6B), fontSize = 13.sp) }
+
+            androidx.compose.material3.Button(
+                onClick = onResend,
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = Yellow,
+                    contentColor = Color.Black,
+                ),
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.Black, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
+                } else {
+                    Text("Resend Email", fontWeight = FontWeight.Bold)
+                }
+            }
+
+            TextButton(onClick = onBackToSignIn) {
+                Text("Back to Sign In", color = Yellow, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
 }
 
 @Composable
