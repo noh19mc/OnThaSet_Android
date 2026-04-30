@@ -18,4 +18,7 @@ data class BusinessAd(
     val latitude: Double? = null,
     val longitude: Double? = null,
     val sponsored: Boolean? = null,
+    @SerialName("advertiser_email") val advertiserEmail: String? = null,
+    @SerialName("payment_status") val paymentStatus: String? = null,
+    @SerialName("paid_until") val paidUntil: String? = null,
 )
