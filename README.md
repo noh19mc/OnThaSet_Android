@@ -85,7 +85,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Ride Forecast — Open-Meteo 5-day forecast with rider safety chip; supports city search, "use my location" (GPS via FusedLocationProviderClient), and per-event launch from the Event detail screen
 - [x] Bike Builds — feed + post with before/after photos
 - [x] Event creation — title, category, date+time picker, pipe-delimited location, optional flyer upload, address geocoded via Nominatim so events land on the National Map
-- [x] National Calendar map view — Compose Google Maps with category-colored pins (requires `MAPS_API_KEY`; renders a "no key" placeholder otherwise)
+- [x] National Calendar map view — Compose Google Maps with category-colored event pins **and** translucent state polygons that filter the visible pins on tap (matches the iOS WebKit overlay behaviorally — same public-domain GeoJSON source as iOS). Requires `MAPS_API_KEY`; renders a "no key" placeholder otherwise.
 - [x] Ride Photos — feed + upload (event_photos table, event-photos bucket)
 - [x] AdMob banner — anchored at the bottom of Home, Events, National Calendar (list), Profile, Bike Builds, and Ride Photos screens. Renders only when `ADMOB_APP_ID` + `ADMOB_BANNER_UNIT_ID` are configured; SDK falls back to Google's test app ID otherwise so the SDK still initializes cleanly.
 - [x] Admin — PIN-gated tabbed view with three tabs: Events (delete), Reports (dismiss + delete-event), and Ads (approve / reject / deactivate / reactivate / delete, with bucketed Pending / Active / Deactivated / Expired sections and an idempotent bulk-expiry sweep on every load).
@@ -95,10 +95,6 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Local Business Directory — read-only feed of active rows from the `ads` table with one-tap Call / Website actions; sponsored + premium listings float to the top.
 - [x] Event sharing — system share sheet with formatted text (icon + title + date/time + location + price + details).
 - [x] Google Play Billing — paywall reads subscription product from Play Console (configured via `BILLING_SUBSCRIPTION_PRODUCT_ID`), launches the Play purchase flow, acknowledges the purchase, and writes `users.has_subscription = true` so iOS sees the upgrade. Server-side validation (Real-Time Developer Notifications webhook) is recommended before production.
-- [ ] Ride Forecast — 5-day weather for current location or event location
-- [ ] National Calendar map — Compose Google Maps with state-shaped overlays
-- [ ] AdMob banner placements
-- [ ] Admin panel
 
 ## Differences from iOS (intentional, for now)
 

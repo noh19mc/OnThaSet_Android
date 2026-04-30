@@ -36,11 +36,13 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.onthaset.app.BuildConfig
 import com.onthaset.app.events.CalendarUiState
 import com.onthaset.app.events.CalendarViewModel
 import com.onthaset.app.events.Event
+import com.onthaset.app.events.StatePolygon
 
 private val Yellow = Color(0xFFFFD600)
 
@@ -56,6 +58,7 @@ fun CalendarMapScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val filter by viewModel.filter.collectAsStateWithLifecycle()
+    val statePolygons by viewModel.states.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = Color.Black,
@@ -65,7 +68,10 @@ fun CalendarMapScreen(
                     Column {
                         Text("CALENDAR MAP", color = Yellow, fontWeight = FontWeight.Black, fontSize = 14.sp)
                         Text(
-                            "${com.onthaset.app.events.monthName(filter.month)} ${filter.year}",
+                            buildString {
+                                append("${com.onthaset.app.events.monthName(filter.month)} ${filter.year}")
+                                filter.state?.let { append(" · $it") }
+                            },
                             color = Color.Gray,
                             fontSize = 11.sp,
                         )
@@ -73,6 +79,13 @@ fun CalendarMapScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
                 navigationIcon = { TextButton(onClick = onBack) { Text("Back", color = Yellow) } },
+                actions = {
+                    if (filter.state != null) {
+                        TextButton(onClick = { viewModel.selectState(null) }) {
+                            Text("Clear", color = Yellow, fontSize = 12.sp)
+                        }
+                    }
+                },
             )
         },
     ) { padding ->
@@ -86,7 +99,13 @@ fun CalendarMapScreen(
                             CircularProgressIndicator(color = Yellow)
                         }
                     is CalendarUiState.Error -> Centered(s.message, Color(0xFFFF6B6B))
-                    is CalendarUiState.Ready -> Map(events = s.events, onEventClick = onEventClick)
+                    is CalendarUiState.Ready -> Map(
+                        events = s.events,
+                        statePolygons = statePolygons,
+                        selectedState = filter.state,
+                        onEventClick = onEventClick,
+                        onStateClick = viewModel::selectState,
+                    )
                 }
             }
         }
@@ -94,7 +113,13 @@ fun CalendarMapScreen(
 }
 
 @Composable
-private fun Map(events: List<Event>, onEventClick: (String) -> Unit) {
+private fun Map(
+    events: List<Event>,
+    statePolygons: List<StatePolygon>,
+    selectedState: String?,
+    onEventClick: (String) -> Unit,
+    onStateClick: (String?) -> Unit,
+) {
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(UsCenter, 3.5f)
     }
@@ -104,7 +129,20 @@ private fun Map(events: List<Event>, onEventClick: (String) -> Unit) {
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
         properties = mapProperties,
+        onMapClick = { onStateClick(null) }, // tap empty area clears the filter
     ) {
+        // State polygons render under markers — drawn first so taps fall through.
+        statePolygons.forEach { sp ->
+            val isSelected = sp.state == selectedState
+            Polygon(
+                points = sp.outline,
+                clickable = true,
+                strokeColor = if (isSelected) Color(0xFFFFD600) else Color(0x66FFD600),
+                strokeWidth = if (isSelected) 3f else 1f,
+                fillColor = if (isSelected) Color(0x33FFD600) else Color(0x0CFFD600),
+                onClick = { onStateClick(if (isSelected) null else sp.state) },
+            )
+        }
         events.forEach { event ->
             val cat = event.categoryEnum ?: return@forEach
             if (event.latitude == 0.0 && event.longitude == 0.0) return@forEach
