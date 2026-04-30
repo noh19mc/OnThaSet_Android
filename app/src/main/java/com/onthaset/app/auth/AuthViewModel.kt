@@ -73,8 +73,21 @@ class AuthViewModel @Inject constructor(
         val target = _form.value.pendingConfirmation ?: return@launch
         _form.update { it.copy(isLoading = true, error = null, resendInfo = null) }
         runCatching { repo.resendConfirmation(target) }
-            .onFailure { e -> _form.update { it.copy(isLoading = false, error = e.message ?: "Couldn't resend") } }
-            .onSuccess { _form.update { it.copy(isLoading = false, resendInfo = "Confirmation email sent.") } }
+            .onFailure { e ->
+                _form.update { it.copy(isLoading = false, error = e.message ?: "Couldn't resend") }
+            }
+            .onSuccess {
+                // Supabase's resend endpoint returns 200 OK even when rate-limited (free tier
+                // is ~2 confirmation emails per hour, project-wide), so we can't promise
+                // delivery — surface the caveat in the message instead of claiming success.
+                _form.update {
+                    it.copy(
+                        isLoading = false,
+                        resendInfo = "If your account still needs confirming, a new email is on its way to $target. " +
+                            "Check spam too. Supabase rate-limits these emails to a few per hour — if nothing arrives, wait a bit and try again.",
+                    )
+                }
+            }
     }
 
     fun acknowledgeConfirmation() = _form.update {

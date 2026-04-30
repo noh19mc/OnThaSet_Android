@@ -314,7 +314,14 @@ private fun ConfirmationPendingScreen(
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
 
-            info?.let { Text(it, color = Color(0xFF8DD681), fontSize = 13.sp) }
+            info?.let {
+                Text(
+                    it,
+                    color = Color(0xFF8DD681),
+                    fontSize = 13.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            }
             error?.let { Text(it, color = Color(0xFFFF6B6B), fontSize = 13.sp) }
 
             androidx.compose.material3.Button(
