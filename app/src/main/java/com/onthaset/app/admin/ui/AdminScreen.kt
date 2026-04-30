@@ -52,6 +52,11 @@ import com.onthaset.app.admin.AdminUiState
 import com.onthaset.app.admin.AdminViewModel
 import com.onthaset.app.events.Event
 import com.onthaset.app.events.formatEventDay
+import com.onthaset.app.reports.EventReport
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Tab
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Surface
 
 private val Yellow = Color(0xFFFFD600)
 private val FieldBg = Color(0x14FFFFFF)
@@ -85,7 +90,12 @@ fun AdminScreen(
                 AdminUiState.Locked -> if (viewModel.pinConfigured) PinGate(viewModel::tryUnlock) else NoPin()
                 AdminUiState.Loading -> Loader()
                 is AdminUiState.Error -> CenteredText(s.message, Color(0xFFFF6B6B))
-                is AdminUiState.Ready -> EventsModeration(s.events, onDelete = viewModel::delete)
+                is AdminUiState.Ready -> AdminTabs(
+                    events = s.events,
+                    reports = s.reports,
+                    onDeleteEvent = viewModel::deleteEvent,
+                    onDismissReport = viewModel::dismissReport,
+                )
             }
         }
     }
@@ -157,6 +167,110 @@ private fun NoPin() {
             color = Color.Gray,
             fontSize = 13.sp,
         )
+    }
+}
+
+@Composable
+private fun AdminTabs(
+    events: List<Event>,
+    reports: List<EventReport>,
+    onDeleteEvent: (String) -> Unit,
+    onDismissReport: (String) -> Unit,
+) {
+    var tab by remember { mutableStateOf(0) }
+    Column(modifier = Modifier.fillMaxSize()) {
+        TabRow(selectedTabIndex = tab, containerColor = Color.Black, contentColor = Yellow) {
+            Tab(selected = tab == 0, onClick = { tab = 0 }) {
+                Text(
+                    "EVENTS  (${events.size})",
+                    color = if (tab == 0) Yellow else Color.Gray,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(vertical = 12.dp),
+                )
+            }
+            Tab(selected = tab == 1, onClick = { tab = 1 }) {
+                Text(
+                    "REPORTS  (${reports.size})",
+                    color = if (tab == 1) Yellow else Color.Gray,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(vertical = 12.dp),
+                )
+            }
+        }
+        when (tab) {
+            0 -> EventsModeration(events, onDeleteEvent)
+            1 -> ReportsModeration(reports, events, onDismissReport, onDeleteEvent)
+        }
+    }
+}
+
+@Composable
+private fun ReportsModeration(
+    reports: List<EventReport>,
+    events: List<Event>,
+    onDismiss: (String) -> Unit,
+    onDeleteEvent: (String) -> Unit,
+) {
+    if (reports.isEmpty()) {
+        CenteredText("No pending reports — community is behaving.", Color.Gray)
+        return
+    }
+    val eventsById = remember(events) { events.associateBy { it.id ?: "" } }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        items(items = reports, key = { it.id ?: it.eventId + it.createdAt.toString() }) { r ->
+            Card(
+                colors = CardDefaults.cardColors(containerColor = CardBg),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(r.reason.uppercase(), color = Color(0xFFFF6B6B), fontWeight = FontWeight.Black, fontSize = 11.sp)
+                    Spacer(Modifier.size(2.dp))
+                    Text(r.eventTitle, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    if (r.additionalNotes.isNotBlank()) {
+                        Spacer(Modifier.size(4.dp))
+                        Text("“${r.additionalNotes}”", color = Color.LightGray, fontSize = 12.sp)
+                    }
+                    Spacer(Modifier.size(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Surface(
+                            onClick = { r.id?.let(onDismiss) },
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color(0x14FFFFFF),
+                        ) {
+                            Text(
+                                "Dismiss",
+                                color = Yellow,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            )
+                        }
+                        if (eventsById.containsKey(r.eventId)) {
+                            Surface(
+                                onClick = { onDeleteEvent(r.eventId) },
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0x44FF6B6B),
+                            ) {
+                                Text(
+                                    "Delete event",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
