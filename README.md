@@ -82,6 +82,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Event creation — title, category, date+time picker, pipe-delimited location, optional flyer upload (geocoding to lat/lng deferred — events posted from Android won't show on the map until we add it)
 - [x] National Calendar map view — Compose Google Maps with category-colored pins (requires `MAPS_API_KEY`; renders a "no key" placeholder otherwise)
 - [x] Ride Photos — feed + upload (event_photos table, event-photos bucket)
+- [x] AdMob banner — anchored on Home (renders only when `ADMOB_APP_ID` + `ADMOB_BANNER_UNIT_ID` are configured; SDK falls back to Google's test app ID otherwise so the SDK still initializes cleanly)
 - [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays

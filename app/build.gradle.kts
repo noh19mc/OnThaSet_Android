@@ -32,9 +32,13 @@ android {
         buildConfigField("String", "SUPABASE_URL", "\"${localOrEmpty("SUPABASE_URL")}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localOrEmpty("SUPABASE_ANON_KEY")}\"")
         buildConfigField("String", "MAPS_API_KEY", "\"${localOrEmpty("MAPS_API_KEY")}\"")
+        buildConfigField("String", "ADMOB_BANNER_UNIT_ID", "\"${localOrEmpty("ADMOB_BANNER_UNIT_ID")}\"")
 
-        // Inject the maps key into the manifest placeholder used by AndroidManifest.xml.
+        // Manifest placeholders. Empty ADMOB_APP_ID would fail the SDK init, so fall back to
+        // Google's official "test" app ID when no key is configured — keeps debug builds working.
         manifestPlaceholders["MAPS_API_KEY"] = localOrEmpty("MAPS_API_KEY")
+        manifestPlaceholders["ADMOB_APP_ID"] = localOrEmpty("ADMOB_APP_ID")
+            .ifBlank { "ca-app-pub-3940256099942544~3347511713" }
     }
 
     buildTypes {
@@ -95,6 +99,7 @@ dependencies {
 
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
+    implementation(libs.play.services.ads)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

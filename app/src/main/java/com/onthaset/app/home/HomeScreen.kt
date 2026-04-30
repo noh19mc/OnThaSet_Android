@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.onthaset.app.ads.AdMobBanner
 import com.onthaset.app.auth.AuthState
 import com.onthaset.app.auth.AuthViewModel
 import com.onthaset.app.auth.ui.OnThaSetShield
@@ -131,6 +132,7 @@ fun HomeScreen(
             ) {
                 Text("Sign Out", color = Color(0xFFFFD600))
             }
+            AdMobBanner()
         }
     }
 }
