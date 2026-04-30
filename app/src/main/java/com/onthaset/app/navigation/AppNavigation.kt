@@ -28,6 +28,7 @@ import com.onthaset.app.auth.ui.AuthScreen
 import com.onthaset.app.auth.ui.GateScreen
 import com.onthaset.app.events.ui.EventDetailScreen
 import com.onthaset.app.events.ui.EventsScreen
+import com.onthaset.app.events.ui.NationalCalendarScreen
 import com.onthaset.app.home.HomeScreen
 import com.onthaset.app.profile.ui.EditProfileScreen
 import com.onthaset.app.profile.ui.ProfileScreen
@@ -69,6 +70,7 @@ fun AppNavigation() {
                 HomeScreen(
                     onOpenEvents = { navController.navigate(Routes.EVENTS) },
                     onOpenProfile = { navController.navigate(Routes.PROFILE) },
+                    onOpenCalendar = { navController.navigate(Routes.NATIONAL_RUN_CALENDAR) },
                 )
             }
             composable(Routes.EVENTS) {
@@ -84,7 +86,12 @@ fun AppNavigation() {
                 val id = backStackEntry.arguments?.getString("id").orEmpty()
                 EventDetailScreen(eventId = id, onBack = { navController.popBackStack() })
             }
-            composable(Routes.NATIONAL_RUN_CALENDAR) { Placeholder("National Run Calendar") }
+            composable(Routes.NATIONAL_RUN_CALENDAR) {
+                NationalCalendarScreen(
+                    onEventClick = { id -> navController.navigate(Routes.eventDetail(id)) },
+                    onBack = { navController.popBackStack() },
+                )
+            }
             composable(Routes.PROFILE) {
                 ProfileScreen(
                     onBack = { navController.popBackStack() },

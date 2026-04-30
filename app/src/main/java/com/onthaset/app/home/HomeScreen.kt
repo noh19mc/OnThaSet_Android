@@ -31,6 +31,7 @@ import com.onthaset.app.auth.ui.OnThaSetShield
 fun HomeScreen(
     onOpenEvents: () -> Unit,
     onOpenProfile: () -> Unit,
+    onOpenCalendar: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.authState.collectAsStateWithLifecycle()
@@ -72,6 +73,15 @@ fun HomeScreen(
                 ),
             ) {
                 Text("Browse Events", fontWeight = FontWeight.Bold)
+            }
+            OutlinedButton(
+                onClick = onOpenCalendar,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                Text("National Run Calendar", color = Color(0xFFFFD600))
             }
             OutlinedButton(
                 onClick = onOpenProfile,
