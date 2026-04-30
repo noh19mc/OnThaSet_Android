@@ -10,6 +10,7 @@ object Routes {
     const val PROFILE = "profile"
     const val EDIT_PROFILE = "profile/edit"
     const val BIKE_BUILDS = "bikes"
+    const val ADD_BIKE_BUILD = "bikes/new"
     const val WEATHER = "weather"
     const val ADMIN = "admin"
 

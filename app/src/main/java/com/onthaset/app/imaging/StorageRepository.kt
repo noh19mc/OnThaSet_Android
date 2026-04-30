@@ -19,9 +19,14 @@ class StorageRepository @Inject constructor(
 object Buckets {
     const val PROFILE_IMAGES = "profile-images"
     const val EVENT_FLYERS = "event-flyers"
+    const val BIKE_PROGRESS = "bike-progress"
 }
 
 object StoragePaths {
     fun profile(userId: String) = "profile-${userId.lowercase()}.jpg"
     fun background(userId: String) = "background-${userId.lowercase()}.jpg"
+
+    /** Each bike-build entry needs a unique pair of filenames, so include a timestamp + tag. */
+    fun bikeBefore(userId: String, stamp: Long) = "before-${userId.lowercase()}-$stamp.jpg"
+    fun bikeAfter(userId: String, stamp: Long) = "after-${userId.lowercase()}-$stamp.jpg"
 }

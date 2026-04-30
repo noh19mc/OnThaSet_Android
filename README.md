@@ -23,6 +23,7 @@ app/src/main/java/com/onthaset/app/
 ├── auth/         # Supabase email/password sign-in, sign-up, email confirmation, password reset
 ├── events/       # Events list, detail, and the National Run Calendar
 ├── profile/      # User profile view + edit (text fields and photos)
+├── bikes/        # Bike Builds feed + create with before/after photos
 ├── weather/      # 5-day Ride Forecast (Open-Meteo) with rider safety chip
 ├── imaging/      # Image compression + Supabase Storage upload helpers
 ├── home/         # Logged-in landing screen
@@ -57,8 +58,9 @@ Both clients use the same Supabase project. Tables touched by Android so far:
 | ------ | -------------------------------------------------------------------------------------------------- |
 | `users`  | `apple_user_id`, `email`, `display_name`, `bio`, `hometown`, `club`, `favorite_ride`, `riding_since`, `preferred_ride_type`, `favorite_route`, `instagram_handle`, `tiktok_handle`, `youtube_channel`, `facebook_handle`, `profile_image_url`, `background_image_url` |
 | `events` | `id`, `title`, `date`, `category`, `location_name`, `details`, `price`, `latitude`, `longitude`, `posted_by_user_id`, `posted_by_name`, `created_at`, `image_url` |
+| `bike_builds` | `id`, `user_id`, `modification_title`, `note`, `before_image_url`, `after_image_url`, `bike_make`, `bike_model`, `bike_year`, `created_at` |
 
-Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images).
+Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images), `bike-progress` (before/after build photos).
 
 > Note: the iOS app stores the Supabase auth UUID in the `apple_user_id` column even for email-signup users. Android matches that convention so both clients read and write the same row per user.
 
@@ -70,7 +72,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Profile — view + edit text fields, profile/cover photo upload
 - [x] National Run Calendar — list view with month picker + category filter chips
 - [x] Ride Forecast — Open-Meteo 5-day forecast with rider safety messaging based on wind speed
-- [ ] Bike Builds — list + create with before/after photos
+- [x] Bike Builds — feed + post with before/after photos
 - [ ] Event creation + Google Play Billing (replaces the iOS StoreKit flow)
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays
