@@ -14,7 +14,14 @@ class ProfileRepository @Inject constructor(
             limit(1)
         }.decodeSingleOrNull()
 
-    /** Creates the row if missing, returns the resulting profile. */
+    /**
+     * Returns the user's profile, creating a starter row if one doesn't exist.
+     *
+     * Falls back to a synthetic in-memory profile when the insert is blocked by RLS or
+     * when re-fetch returns null — matches the iOS app's "log the error and continue"
+     * behavior, so the user can still browse events, calendar, etc., without a backend
+     * row. The synthetic profile is read-only; updates will throw until RLS is fixed.
+     */
     suspend fun ensure(userId: String, email: String): UserProfile {
         byUserId(userId)?.let { return it }
         val seed = ProfileSeed(
@@ -22,8 +29,12 @@ class ProfileRepository @Inject constructor(
             email = email,
             displayName = email.substringBefore("@").ifBlank { "Rider" },
         )
-        postgrest.from("users").insert(seed)
-        return byUserId(userId) ?: error("Failed to create profile for $userId")
+        runCatching { postgrest.from("users").insert(seed) }
+        return byUserId(userId) ?: UserProfile(
+            appleUserId = userId,
+            email = email,
+            displayName = email.substringBefore("@").ifBlank { "Rider" },
+        )
     }
 
     suspend fun update(userId: String, update: ProfileUpdate) {
