@@ -67,6 +67,7 @@ Both clients use the same Supabase project. Tables touched by Android so far:
 | `events` | `id`, `title`, `date`, `category`, `location_name`, `details`, `price`, `latitude`, `longitude`, `posted_by_user_id`, `posted_by_name`, `created_at`, `image_url` |
 | `bike_builds` | `id`, `user_id`, `modification_title`, `note`, `before_image_url`, `after_image_url`, `bike_make`, `bike_model`, `bike_year`, `created_at` |
 | `event_photos` | `id`, `uploaded_by`, `event_name`, `event_date`, `location`, `caption`, `image_url`, `created_at` |
+| `event_reports` | `id`, `event_id`, `event_title`, `reported_by_user_id`, `reason`, `additional_notes`, `created_at` |
 
 Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images), `bike-progress` (before/after build photos), `event-photos` (ride photos).
 
@@ -88,6 +89,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Admin v1 — PIN-gated event moderation (delete events). Reports / ad approvals deferred.
 - [x] Onboarding wizard — single-screen welcome that captures display name, hometown, bio, bike, riding-since, and club for fresh accounts; surfaces as a "Finish Setting Up Your Profile" CTA on Home until those fields are filled.
 - [x] Public rider profile — tap "Posted by" on any event to open a read-only profile of that rider.
+- [x] Event reporting — flag inappropriate / spam / duplicate events, written to `event_reports` for moderators.
 - [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays

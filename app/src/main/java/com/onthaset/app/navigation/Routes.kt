@@ -7,6 +7,12 @@ object Routes {
     const val EVENTS = "events"
     const val EVENT_DETAIL = "event/{id}"
     const val CREATE_EVENT = "events/new"
+    const val REPORT_EVENT = "event/{id}/report?title={title}"
+
+    fun reportEvent(id: String, title: String): String {
+        val encoded = java.net.URLEncoder.encode(title, "UTF-8")
+        return "event/$id/report?title=$encoded"
+    }
     const val NATIONAL_RUN_CALENDAR = "calendar"
     const val NATIONAL_RUN_CALENDAR_MAP = "calendar/map"
     const val PROFILE = "profile"

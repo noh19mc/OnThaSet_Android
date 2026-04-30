@@ -36,6 +36,7 @@ import com.onthaset.app.profile.ui.EditProfileScreen
 import com.onthaset.app.profile.ui.OnboardingScreen
 import com.onthaset.app.profile.ui.ProfileScreen
 import com.onthaset.app.profile.ui.PublicProfileScreen
+import com.onthaset.app.reports.ui.ReportEventScreen
 import com.onthaset.app.bikes.ui.AddBikeBuildScreen
 import com.onthaset.app.bikes.ui.BikesScreen
 import com.onthaset.app.admin.ui.AdminScreen
@@ -126,6 +127,22 @@ fun AppNavigation() {
                     eventId = id,
                     onBack = { navController.popBackStack() },
                     onOpenPoster = { userId -> navController.navigate(Routes.publicProfile(userId)) },
+                    onReport = { eventId, title -> navController.navigate(Routes.reportEvent(eventId, title)) },
+                )
+            }
+            composable(
+                route = Routes.REPORT_EVENT,
+                arguments = listOf(
+                    navArgument("id") { type = NavType.StringType },
+                    navArgument("title") { type = NavType.StringType; defaultValue = "" },
+                ),
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id").orEmpty()
+                val title = backStackEntry.arguments?.getString("title").orEmpty()
+                ReportEventScreen(
+                    eventId = id,
+                    eventTitle = title,
+                    onBack = { navController.popBackStack() },
                 )
             }
             composable(

@@ -47,6 +47,7 @@ fun EventDetailScreen(
     eventId: String,
     onBack: () -> Unit,
     onOpenPoster: (String) -> Unit,
+    onReport: (String, String) -> Unit,
     viewModel: EventDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(eventId) { viewModel.load(eventId) }
@@ -60,6 +61,14 @@ fun EventDetailScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
                 navigationIcon = {
                     TextButton(onClick = onBack) { Text("Back", color = Yellow) }
+                },
+                actions = {
+                    val current = event
+                    if (current?.id != null) {
+                        TextButton(onClick = { onReport(current.id, current.title) }) {
+                            Text("Report", color = Color(0xFFFF6B6B))
+                        }
+                    }
                 },
             )
         },
