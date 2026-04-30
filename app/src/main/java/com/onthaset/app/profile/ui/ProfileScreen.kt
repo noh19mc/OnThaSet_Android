@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.onthaset.app.ads.AdMobBanner
 import com.onthaset.app.profile.ProfileUiState
 import com.onthaset.app.profile.ProfileViewModel
 import com.onthaset.app.profile.UserProfile
@@ -160,6 +161,8 @@ private fun ProfileBody(p: UserProfile) {
             Field("Email", p.email)
         }
         }
+        Spacer(Modifier.height(20.dp))
+        AdMobBanner()
     }
 }
 

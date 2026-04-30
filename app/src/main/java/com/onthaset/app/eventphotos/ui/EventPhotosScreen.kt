@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.onthaset.app.ads.AdMobBanner
 import com.onthaset.app.eventphotos.EventPhoto
 import com.onthaset.app.eventphotos.EventPhotosUiState
 import com.onthaset.app.eventphotos.EventPhotosViewModel
@@ -80,6 +81,7 @@ fun EventPhotosScreen(
                     if (s.photos.isEmpty()) CenteredText("No ride photos yet — be first.", Color.Gray)
                     else PhotoFeed(s.photos)
             }
+            Box(modifier = Modifier.align(Alignment.BottomCenter)) { AdMobBanner() }
         }
     }
 }

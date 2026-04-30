@@ -16,7 +16,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -60,10 +64,29 @@ private val CardBg = Color(0x14FFFFFF)
 @Composable
 fun WeatherScreen(
     onBack: () -> Unit,
+    initialLat: Double? = null,
+    initialLng: Double? = null,
+    initialLabel: String? = null,
     viewModel: WeatherViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var query by remember { mutableStateOf("") }
+
+    androidx.compose.runtime.LaunchedEffect(initialLat, initialLng) {
+        if (initialLat != null && initialLng != null && state.daily.isEmpty()) {
+            viewModel.loadFor(initialLat, initialLng, initialLabel ?: "Event Location")
+        }
+    }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { granted ->
+        if (granted[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            granted[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        ) {
+            viewModel.loadCurrentLocation()
+        }
+    }
 
     Scaffold(
         containerColor = Color.Black,
@@ -91,6 +114,18 @@ fun WeatherScreen(
                 query = query,
                 onQueryChange = { query = it },
                 onSearch = { viewModel.search(query) },
+                onUseMyLocation = {
+                    if (viewModel.locationPermissionGranted) {
+                        viewModel.loadCurrentLocation()
+                    } else {
+                        locationPermissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                            )
+                        )
+                    }
+                },
             )
             Spacer(Modifier.height(8.dp))
             when {
@@ -115,35 +150,45 @@ private fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
+    onUseMyLocation: () -> Unit,
 ) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChange,
-        placeholder = { Text("City, ZIP, or town", color = Color.Gray.copy(alpha = 0.5f)) },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            capitalization = KeyboardCapitalization.Words,
-            autoCorrectEnabled = false,
-            imeAction = ImeAction.Search,
-        ),
-        trailingIcon = {
-            IconButton(onClick = onSearch) {
-                Icon(Icons.Filled.Search, contentDescription = "Search", tint = Yellow)
-            }
-        },
+    androidx.compose.foundation.layout.Row(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(10.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            focusedContainerColor = FieldBg,
-            unfocusedContainerColor = FieldBg,
-            cursorColor = Yellow,
-            focusedBorderColor = Yellow,
-            unfocusedBorderColor = Yellow.copy(alpha = 0.3f),
-        ),
-    )
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = onQueryChange,
+            placeholder = { Text("City, ZIP, or town", color = Color.Gray.copy(alpha = 0.5f)) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                capitalization = KeyboardCapitalization.Words,
+                autoCorrectEnabled = false,
+                imeAction = ImeAction.Search,
+            ),
+            trailingIcon = {
+                IconButton(onClick = onSearch) {
+                    Icon(Icons.Filled.Search, contentDescription = "Search", tint = Yellow)
+                }
+            },
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(10.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = FieldBg,
+                unfocusedContainerColor = FieldBg,
+                cursorColor = Yellow,
+                focusedBorderColor = Yellow,
+                unfocusedBorderColor = Yellow.copy(alpha = 0.3f),
+            ),
+        )
+        IconButton(onClick = onUseMyLocation) {
+            Icon(Icons.Filled.MyLocation, contentDescription = "Use my location", tint = Yellow)
+        }
+    }
 }
 
 @Composable

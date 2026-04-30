@@ -107,6 +107,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.ads)
     implementation(libs.billing.ktx)
+    implementation(libs.play.services.location)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

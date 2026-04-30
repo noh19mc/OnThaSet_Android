@@ -24,6 +24,12 @@ object Routes {
     const val BIKE_BUILDS = "bikes"
     const val ADD_BIKE_BUILD = "bikes/new"
     const val WEATHER = "weather"
+    const val WEATHER_FOR_LOCATION = "weather?lat={lat}&lng={lng}&label={label}"
+
+    fun weatherFor(lat: Double, lng: Double, label: String): String {
+        val encoded = java.net.URLEncoder.encode(label, "UTF-8")
+        return "weather?lat=$lat&lng=$lng&label=$encoded"
+    }
     const val DIRECTORY = "directory"
     const val PAYWALL = "subscribe"
     const val EVENT_PHOTOS = "event-photos"

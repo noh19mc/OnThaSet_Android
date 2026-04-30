@@ -142,6 +142,9 @@ fun AppNavigation() {
                     onBack = { navController.popBackStack() },
                     onOpenPoster = { userId -> navController.navigate(Routes.publicProfile(userId)) },
                     onReport = { eventId, title -> navController.navigate(Routes.reportEvent(eventId, title)) },
+                    onOpenWeather = { lat, lng, label ->
+                        navController.navigate(Routes.weatherFor(lat, lng, label))
+                    },
                 )
             }
             composable(
@@ -225,6 +228,24 @@ fun AppNavigation() {
             }
             composable(Routes.WEATHER) {
                 WeatherScreen(onBack = { navController.popBackStack() })
+            }
+            composable(
+                route = Routes.WEATHER_FOR_LOCATION,
+                arguments = listOf(
+                    navArgument("lat") { type = NavType.StringType },
+                    navArgument("lng") { type = NavType.StringType },
+                    navArgument("label") { type = NavType.StringType; defaultValue = "" },
+                ),
+            ) { backStackEntry ->
+                val lat = backStackEntry.arguments?.getString("lat")?.toDoubleOrNull()
+                val lng = backStackEntry.arguments?.getString("lng")?.toDoubleOrNull()
+                val label = backStackEntry.arguments?.getString("label").orEmpty()
+                WeatherScreen(
+                    onBack = { navController.popBackStack() },
+                    initialLat = lat,
+                    initialLng = lng,
+                    initialLabel = label.ifBlank { null },
+                )
             }
         }
     }

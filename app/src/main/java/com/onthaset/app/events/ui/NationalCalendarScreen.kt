@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.onthaset.app.ads.AdMobBanner
 import com.onthaset.app.events.CalendarUiState
 import com.onthaset.app.events.CalendarViewModel
 import com.onthaset.app.events.Event
@@ -105,7 +106,7 @@ fun NationalCalendarScreen(
                 selected = filter.category,
                 onSelect = viewModel::selectCategory,
             )
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
                 when (val s = state) {
                     CalendarUiState.Loading -> CenteredLoaderCal()
                     is CalendarUiState.Error -> Centered("Error: ${s.message}")
@@ -114,6 +115,7 @@ fun NationalCalendarScreen(
                         else CalendarList(events = s.events, onEventClick = onEventClick)
                 }
             }
+            AdMobBanner()
         }
     }
 }

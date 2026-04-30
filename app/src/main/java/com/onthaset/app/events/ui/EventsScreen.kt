@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.onthaset.app.ads.AdMobBanner
 import com.onthaset.app.events.Event
 import com.onthaset.app.events.EventsUiState
 import com.onthaset.app.events.EventsViewModel
@@ -101,6 +102,7 @@ fun EventsScreen(
                     else EventsList(events = s.events, refreshing = refreshing, onClick = onEventClick)
                 }
             }
+            Box(modifier = Modifier.align(Alignment.BottomCenter)) { AdMobBanner() }
         }
     }
 }

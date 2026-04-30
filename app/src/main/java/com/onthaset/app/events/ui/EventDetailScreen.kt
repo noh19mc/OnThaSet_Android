@@ -50,6 +50,7 @@ fun EventDetailScreen(
     onBack: () -> Unit,
     onOpenPoster: (String) -> Unit,
     onReport: (String, String) -> Unit,
+    onOpenWeather: (Double, Double, String) -> Unit,
     viewModel: EventDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(eventId) { viewModel.load(eventId) }
@@ -67,6 +68,13 @@ fun EventDetailScreen(
                 },
                 actions = {
                     val current = event
+                    if (current != null && (current.latitude != 0.0 || current.longitude != 0.0)) {
+                        TextButton(onClick = {
+                            onOpenWeather(current.latitude, current.longitude, current.title)
+                        }) {
+                            Text("Weather", color = Yellow)
+                        }
+                    }
                     if (current != null) {
                         TextButton(onClick = {
                             val share = Intent(Intent.ACTION_SEND).apply {

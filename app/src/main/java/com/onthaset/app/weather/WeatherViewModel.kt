@@ -26,10 +26,25 @@ data class WeatherUiState(
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val repo: WeatherRepository,
+    private val location: LocationProvider,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(WeatherUiState())
     val state: StateFlow<WeatherUiState> = _state.asStateFlow()
+
+    val locationPermissionGranted: Boolean get() = location.hasPermission()
+
+    fun loadCurrentLocation() = viewModelScope.launch {
+        _state.value = _state.value.copy(isLoading = true, error = null)
+        val loc = location.current()
+        if (loc == null) {
+            _state.value = _state.value.copy(isLoading = false, error = "Couldn't read your location.")
+            return@launch
+        }
+        runCatching { repo.forecast(loc.latitude, loc.longitude) }
+            .onSuccess { _state.value = render(it, "Your Location") }
+            .onFailure { e -> _state.value = _state.value.copy(isLoading = false, error = e.message ?: "Failed") }
+    }
 
     fun search(city: String) = viewModelScope.launch {
         if (city.isBlank()) return@launch

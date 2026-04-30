@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.onthaset.app.ads.AdMobBanner
 import com.onthaset.app.bikes.BikeBuild
 import com.onthaset.app.bikes.BikesUiState
 import com.onthaset.app.bikes.BikesViewModel
@@ -86,6 +87,7 @@ fun BikesScreen(
                     if (s.builds.isEmpty()) CenteredText("No bike builds yet — be first to post.", Color.Gray)
                     else BikesList(s.builds)
             }
+            Box(modifier = Modifier.align(Alignment.BottomCenter)) { AdMobBanner() }
         }
     }
 }

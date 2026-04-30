@@ -82,12 +82,12 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Events — upcoming list with iOS-matching weekend cutoff, detail screen
 - [x] Profile — view + edit text fields, profile/cover photo upload
 - [x] National Run Calendar — list view with month picker + category filter chips
-- [x] Ride Forecast — Open-Meteo 5-day forecast with rider safety messaging based on wind speed
+- [x] Ride Forecast — Open-Meteo 5-day forecast with rider safety chip; supports city search, "use my location" (GPS via FusedLocationProviderClient), and per-event launch from the Event detail screen
 - [x] Bike Builds — feed + post with before/after photos
 - [x] Event creation — title, category, date+time picker, pipe-delimited location, optional flyer upload, address geocoded via Nominatim so events land on the National Map
 - [x] National Calendar map view — Compose Google Maps with category-colored pins (requires `MAPS_API_KEY`; renders a "no key" placeholder otherwise)
 - [x] Ride Photos — feed + upload (event_photos table, event-photos bucket)
-- [x] AdMob banner — anchored on Home (renders only when `ADMOB_APP_ID` + `ADMOB_BANNER_UNIT_ID` are configured; SDK falls back to Google's test app ID otherwise so the SDK still initializes cleanly)
+- [x] AdMob banner — anchored at the bottom of Home, Events, National Calendar (list), Profile, Bike Builds, and Ride Photos screens. Renders only when `ADMOB_APP_ID` + `ADMOB_BANNER_UNIT_ID` are configured; SDK falls back to Google's test app ID otherwise so the SDK still initializes cleanly.
 - [x] Admin — PIN-gated tabbed view: Events tab deletes events; Reports tab shows incoming flags with Dismiss + Delete-event actions. Ad approvals still deferred.
 - [x] Onboarding wizard — single-screen welcome that captures display name, hometown, bio, bike, riding-since, and club for fresh accounts; surfaces as a "Finish Setting Up Your Profile" CTA on Home until those fields are filled.
 - [x] Public rider profile — tap "Posted by" on any event to open a read-only profile of that rider.
