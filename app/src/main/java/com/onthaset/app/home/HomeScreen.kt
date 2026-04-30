@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +28,10 @@ import com.onthaset.app.auth.AuthViewModel
 import com.onthaset.app.auth.ui.OnThaSetShield
 
 @Composable
-fun HomeScreen(viewModel: AuthViewModel = hiltViewModel()) {
+fun HomeScreen(
+    onOpenEvents: () -> Unit,
+    viewModel: AuthViewModel = hiltViewModel(),
+) {
     val state by viewModel.authState.collectAsStateWithLifecycle()
     val signedIn = state as? AuthState.SignedIn
 
@@ -54,11 +59,19 @@ fun HomeScreen(viewModel: AuthViewModel = hiltViewModel()) {
                 color = Color.Gray,
                 fontSize = 14.sp,
             )
-            Text(
-                "Home feed coming next — events, calendar, profile.",
-                color = Color.Gray,
-                fontSize = 13.sp,
-            )
+            Button(
+                onClick = onOpenEvents,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFFD600),
+                    contentColor = Color.Black,
+                ),
+            ) {
+                Text("Browse Events", fontWeight = FontWeight.Bold)
+            }
             OutlinedButton(
                 onClick = viewModel::signOut,
                 modifier = Modifier

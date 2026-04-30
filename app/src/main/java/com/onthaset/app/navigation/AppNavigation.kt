@@ -20,10 +20,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.onthaset.app.auth.AuthState
 import com.onthaset.app.auth.AuthViewModel
 import com.onthaset.app.auth.ui.AuthScreen
 import com.onthaset.app.auth.ui.GateScreen
+import com.onthaset.app.events.ui.EventDetailScreen
+import com.onthaset.app.events.ui.EventsScreen
 import com.onthaset.app.home.HomeScreen
 
 @Composable
@@ -59,8 +63,24 @@ fun AppNavigation() {
             composable(Routes.AUTH) {
                 AuthScreen(onBack = { navController.popBackStack() })
             }
-            composable(Routes.HOME) { HomeScreen() }
-            composable(Routes.EVENTS) { Placeholder("Events") }
+            composable(Routes.HOME) {
+                HomeScreen(
+                    onOpenEvents = { navController.navigate(Routes.EVENTS) },
+                )
+            }
+            composable(Routes.EVENTS) {
+                EventsScreen(
+                    onEventClick = { id -> navController.navigate(Routes.eventDetail(id)) },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(
+                route = Routes.EVENT_DETAIL,
+                arguments = listOf(navArgument("id") { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id").orEmpty()
+                EventDetailScreen(eventId = id, onBack = { navController.popBackStack() })
+            }
             composable(Routes.NATIONAL_RUN_CALENDAR) { Placeholder("National Run Calendar") }
             composable(Routes.PROFILE) { Placeholder("Profile") }
             composable(Routes.BIKE_BUILDS) { Placeholder("Bike Builds") }

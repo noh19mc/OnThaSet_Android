@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.coil.compose)
 
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.datetime)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
