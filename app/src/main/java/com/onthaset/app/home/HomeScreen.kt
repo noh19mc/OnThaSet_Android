@@ -39,6 +39,7 @@ fun HomeScreen(
     onOpenBikes: () -> Unit,
     onOpenEventPhotos: () -> Unit,
     onOpenDirectory: () -> Unit,
+    onOpenPaywall: () -> Unit,
     onOpenAdmin: () -> Unit,
     onOpenOnboarding: () -> Unit,
     onSignOut: () -> Unit,
@@ -145,6 +146,17 @@ fun HomeScreen(
                 shape = RoundedCornerShape(10.dp),
             ) {
                 Text("Local Businesses", color = Color(0xFFFFD600))
+            }
+            if (signedIn != null) {
+                OutlinedButton(
+                    onClick = onOpenPaywall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(10.dp),
+                ) {
+                    Text("Subscription", color = Color(0xFFFFD600))
+                }
             }
             OutlinedButton(
                 onClick = onOpenProfile,

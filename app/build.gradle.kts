@@ -34,6 +34,11 @@ android {
         buildConfigField("String", "MAPS_API_KEY", "\"${localOrEmpty("MAPS_API_KEY")}\"")
         buildConfigField("String", "ADMOB_BANNER_UNIT_ID", "\"${localOrEmpty("ADMOB_BANNER_UNIT_ID")}\"")
         buildConfigField("String", "ADMIN_PIN", "\"${localOrEmpty("ADMIN_PIN")}\"")
+        buildConfigField(
+            "String",
+            "BILLING_SUBSCRIPTION_PRODUCT_ID",
+            "\"${localOrEmpty("BILLING_SUBSCRIPTION_PRODUCT_ID")}\"",
+        )
 
         // Manifest placeholders. Empty ADMOB_APP_ID would fail the SDK init, so fall back to
         // Google's official "test" app ID when no key is configured — keeps debug builds working.
@@ -101,6 +106,7 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.ads)
+    implementation(libs.billing.ktx)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

@@ -40,6 +40,7 @@ import com.onthaset.app.reports.ui.ReportEventScreen
 import com.onthaset.app.bikes.ui.AddBikeBuildScreen
 import com.onthaset.app.bikes.ui.BikesScreen
 import com.onthaset.app.admin.ui.AdminScreen
+import com.onthaset.app.billing.ui.PaywallScreen
 import com.onthaset.app.directory.ui.DirectoryScreen
 import com.onthaset.app.eventphotos.ui.AddEventPhotoScreen
 import com.onthaset.app.eventphotos.ui.EventPhotosScreen
@@ -87,6 +88,7 @@ fun AppNavigation() {
                     onOpenBikes = { navController.navigate(Routes.BIKE_BUILDS) },
                     onOpenEventPhotos = { navController.navigate(Routes.EVENT_PHOTOS) },
                     onOpenDirectory = { navController.navigate(Routes.DIRECTORY) },
+                    onOpenPaywall = { navController.navigate(Routes.PAYWALL) },
                     onOpenAdmin = { navController.navigate(Routes.ADMIN) },
                     onOpenOnboarding = { navController.navigate(Routes.ONBOARDING) },
                     // Guest mode is a nav-layer flag separate from the auth session, so
@@ -109,6 +111,9 @@ fun AppNavigation() {
             }
             composable(Routes.DIRECTORY) {
                 DirectoryScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Routes.PAYWALL) {
+                PaywallScreen(onBack = { navController.popBackStack() })
             }
             composable(Routes.EVENTS) {
                 EventsScreen(

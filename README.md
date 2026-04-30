@@ -27,6 +27,7 @@ app/src/main/java/com/onthaset/app/
 ├── bikes/        # Bike Builds feed + create with before/after photos
 ├── eventphotos/  # Ride Photos feed + upload (event_photos table)
 ├── ads/          # AdMob banner Composable
+├── billing/      # Google Play Billing — subscription paywall
 ├── directory/    # Local Business Directory (`ads` table — businesses paying to be listed)
 ├── admin/        # PIN-gated event moderation
 ├── weather/      # 5-day Ride Forecast (Open-Meteo) with rider safety chip
@@ -93,7 +94,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Event reporting — flag inappropriate / spam / duplicate events, written to `event_reports` for moderators.
 - [x] Local Business Directory — read-only feed of active rows from the `ads` table with one-tap Call / Website actions; sponsored + premium listings float to the top.
 - [x] Event sharing — system share sheet with formatted text (icon + title + date/time + location + price + details).
-- [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
+- [x] Google Play Billing — paywall reads subscription product from Play Console (configured via `BILLING_SUBSCRIPTION_PRODUCT_ID`), launches the Play purchase flow, acknowledges the purchase, and writes `users.has_subscription = true` so iOS sees the upgrade. Server-side validation (Real-Time Developer Notifications webhook) is recommended before production.
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays
 - [ ] AdMob banner placements

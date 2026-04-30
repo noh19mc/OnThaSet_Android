@@ -54,4 +54,10 @@ class ProfileRepository @Inject constructor(
             filter { eq("apple_user_id", userId) }
         }
     }
+
+    suspend fun setSubscriptionActive(userId: String, active: Boolean) {
+        postgrest.from("users").update(mapOf("has_subscription" to active)) {
+            filter { eq("apple_user_id", userId) }
+        }
+    }
 }
