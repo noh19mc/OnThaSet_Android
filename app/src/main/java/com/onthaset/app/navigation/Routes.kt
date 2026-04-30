@@ -1,8 +1,8 @@
 package com.onthaset.app.navigation
 
 object Routes {
-    const val ONBOARDING = "onboarding"
-    const val LOGIN = "login"
+    const val GATE = "gate"
+    const val AUTH = "auth"
     const val HOME = "home"
     const val EVENTS = "events"
     const val EVENT_DETAIL = "event/{id}"

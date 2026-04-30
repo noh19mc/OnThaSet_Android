@@ -1,32 +1,101 @@
 package com.onthaset.app.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.onthaset.app.auth.AuthState
+import com.onthaset.app.auth.AuthViewModel
+import com.onthaset.app.auth.ui.AuthScreen
+import com.onthaset.app.auth.ui.GateScreen
+import com.onthaset.app.home.HomeScreen
 
 @Composable
 fun AppNavigation() {
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Routes.HOME) {
-        composable(Routes.HOME) { Placeholder("Home — On Tha Set") }
-        composable(Routes.LOGIN) { Placeholder("Login") }
-        composable(Routes.EVENTS) { Placeholder("Events") }
-        composable(Routes.NATIONAL_RUN_CALENDAR) { Placeholder("National Run Calendar") }
-        composable(Routes.PROFILE) { Placeholder("Profile") }
-        composable(Routes.BIKE_BUILDS) { Placeholder("Bike Builds") }
-        composable(Routes.WEATHER) { Placeholder("Ride Forecast") }
+    var guestMode by remember { mutableStateOf(false) }
+
+    LaunchedEffect(authState, guestMode) {
+        when (authState) {
+            is AuthState.SignedIn -> navController.navigateSingleTopTo(Routes.HOME)
+            is AuthState.SignedOut -> {
+                if (guestMode) navController.navigateSingleTopTo(Routes.HOME)
+                else navController.navigateSingleTopTo(Routes.GATE)
+            }
+            AuthState.Loading -> Unit
+        }
+    }
+
+    when (authState) {
+        AuthState.Loading -> SplashLoading()
+        else -> NavHost(
+            navController = navController,
+            startDestination = Routes.GATE,
+        ) {
+            composable(Routes.GATE) {
+                GateScreen(
+                    onContinueWithEmail = { navController.navigate(Routes.AUTH) },
+                    onSkip = { guestMode = true },
+                )
+            }
+            composable(Routes.AUTH) {
+                AuthScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Routes.HOME) { HomeScreen() }
+            composable(Routes.EVENTS) { Placeholder("Events") }
+            composable(Routes.NATIONAL_RUN_CALENDAR) { Placeholder("National Run Calendar") }
+            composable(Routes.PROFILE) { Placeholder("Profile") }
+            composable(Routes.BIKE_BUILDS) { Placeholder("Bike Builds") }
+            composable(Routes.WEATHER) { Placeholder("Ride Forecast") }
+        }
+    }
+}
+
+private fun NavHostController.navigateSingleTopTo(route: String) {
+    navigate(route) {
+        popUpTo(graph.startDestinationId) { inclusive = true }
+        launchSingleTop = true
+    }
+}
+
+@Composable
+private fun SplashLoading() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(color = Color(0xFFFFD600))
     }
 }
 
 @Composable
 private fun Placeholder(label: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(label)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, color = Color.White)
     }
 }
