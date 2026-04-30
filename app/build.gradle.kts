@@ -31,6 +31,10 @@ android {
 
         buildConfigField("String", "SUPABASE_URL", "\"${localOrEmpty("SUPABASE_URL")}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localOrEmpty("SUPABASE_ANON_KEY")}\"")
+        buildConfigField("String", "MAPS_API_KEY", "\"${localOrEmpty("MAPS_API_KEY")}\"")
+
+        // Inject the maps key into the manifest placeholder used by AndroidManifest.xml.
+        manifestPlaceholders["MAPS_API_KEY"] = localOrEmpty("MAPS_API_KEY")
     }
 
     buildTypes {
@@ -88,6 +92,9 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.datetime)
     implementation(libs.androidx.exifinterface)
+
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.maps)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

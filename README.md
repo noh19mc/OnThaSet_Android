@@ -11,6 +11,7 @@ Android port of the **On Tha Set** iOS app — a community platform for motorcyc
 - **Navigation Compose** for routing
 - **Supabase Kotlin SDK** (`auth-kt`, `postgrest-kt`, `storage-kt`, `realtime-kt`) — shares the iOS app's project
 - **Coil** for async image loading
+- **Maps Compose** + Google Maps SDK for the National Calendar map view
 - **Ktor** HTTP client (with JSON content negotiation) for non-Supabase APIs (Open-Meteo)
 - **kotlinx-datetime** for event timestamps
 - **AndroidX DataStore** for local prefs
@@ -43,6 +44,9 @@ app/src/main/java/com/onthaset/app/
    sdk.dir=/Users/<you>/Library/Android/sdk
    SUPABASE_URL=https://<project-ref>.supabase.co
    SUPABASE_ANON_KEY=<anon-jwt>
+   # Optional — needed only for the National Calendar map view.
+   # Get one at console.cloud.google.com/google/maps-apis and restrict it to "Maps SDK for Android".
+   MAPS_API_KEY=
    ```
 4. **Build:**
    ```sh
@@ -73,7 +77,8 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] National Run Calendar — list view with month picker + category filter chips
 - [x] Ride Forecast — Open-Meteo 5-day forecast with rider safety messaging based on wind speed
 - [x] Bike Builds — feed + post with before/after photos
-- [x] Event creation — title, category, date+time picker, pipe-delimited location, optional flyer upload (geocoding to lat/lng deferred until we add the map view)
+- [x] Event creation — title, category, date+time picker, pipe-delimited location, optional flyer upload (geocoding to lat/lng deferred — events posted from Android won't show on the map until we add it)
+- [x] National Calendar map view — Compose Google Maps with category-colored pins (requires `MAPS_API_KEY`; renders a "no key" placeholder otherwise)
 - [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays

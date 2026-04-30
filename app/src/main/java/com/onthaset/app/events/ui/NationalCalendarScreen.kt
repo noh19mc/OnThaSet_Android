@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -62,6 +63,7 @@ private val CardBg = Color(0x14FFFFFF)
 fun NationalCalendarScreen(
     onEventClick: (String) -> Unit,
     onBack: () -> Unit,
+    onOpenMap: () -> Unit,
     viewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -79,6 +81,11 @@ fun NationalCalendarScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
                 navigationIcon = { TextButton(onClick = onBack) { Text("Back", color = Yellow) } },
+                actions = {
+                    IconButton(onClick = onOpenMap) {
+                        Icon(Icons.Filled.Map, contentDescription = "Map view", tint = Yellow)
+                    }
+                },
             )
         },
     ) { padding ->

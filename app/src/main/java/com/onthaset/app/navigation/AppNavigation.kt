@@ -26,6 +26,7 @@ import com.onthaset.app.auth.AuthState
 import com.onthaset.app.auth.AuthViewModel
 import com.onthaset.app.auth.ui.AuthScreen
 import com.onthaset.app.auth.ui.GateScreen
+import com.onthaset.app.events.ui.CalendarMapScreen
 import com.onthaset.app.events.ui.CreateEventScreen
 import com.onthaset.app.events.ui.EventDetailScreen
 import com.onthaset.app.events.ui.EventsScreen
@@ -103,6 +104,15 @@ fun AppNavigation() {
                 NationalCalendarScreen(
                     onEventClick = { id -> navController.navigate(Routes.eventDetail(id)) },
                     onBack = { navController.popBackStack() },
+                    onOpenMap = { navController.navigate(Routes.NATIONAL_RUN_CALENDAR_MAP) },
+                )
+            }
+            composable(Routes.NATIONAL_RUN_CALENDAR_MAP) {
+                val parentEntry = remember(it) { navController.getBackStackEntry(Routes.NATIONAL_RUN_CALENDAR) }
+                CalendarMapScreen(
+                    onEventClick = { id -> navController.navigate(Routes.eventDetail(id)) },
+                    onBack = { navController.popBackStack() },
+                    viewModel = androidx.hilt.navigation.compose.hiltViewModel(parentEntry),
                 )
             }
             composable(Routes.PROFILE) {

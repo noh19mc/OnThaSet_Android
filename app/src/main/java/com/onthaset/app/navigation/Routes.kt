@@ -8,6 +8,7 @@ object Routes {
     const val EVENT_DETAIL = "event/{id}"
     const val CREATE_EVENT = "events/new"
     const val NATIONAL_RUN_CALENDAR = "calendar"
+    const val NATIONAL_RUN_CALENDAR_MAP = "calendar/map"
     const val PROFILE = "profile"
     const val EDIT_PROFILE = "profile/edit"
     const val BIKE_BUILDS = "bikes"
