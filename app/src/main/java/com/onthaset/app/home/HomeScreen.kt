@@ -2,13 +2,15 @@ package com.onthaset.app.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
@@ -50,144 +52,71 @@ fun HomeScreen(
     val needsSetup by profileViewModel.needsSetup.collectAsStateWithLifecycle()
     val signedIn = state as? AuthState.SignedIn
 
-    Box(
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .padding(24.dp),
-        contentAlignment = Alignment.Center,
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            OnThaSetShield(size = 120.dp)
-            Text(
-                "Welcome",
-                color = Color.White,
-                fontWeight = FontWeight.Black,
-                fontSize = 28.sp,
-            )
-            Text(
-                signedIn?.email ?: "Guest mode",
-                color = Color.Gray,
-                fontSize = 14.sp,
-            )
-            if (signedIn != null && needsSetup) {
-                Button(
-                    onClick = onOpenOnboarding,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFD600),
-                        contentColor = Color.Black,
-                    ),
-                ) {
-                    Text("Finish Setting Up Your Profile", fontWeight = FontWeight.Bold)
-                }
-            }
-            Button(
-                onClick = onOpenEvents,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFD600),
-                    contentColor = Color.Black,
-                ),
-            ) {
-                Text("Browse Events", fontWeight = FontWeight.Bold)
-            }
-            OutlinedButton(
-                onClick = onOpenCalendar,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(10.dp),
-            ) {
-                Text("National Run Calendar", color = Color(0xFFFFD600))
-            }
-            OutlinedButton(
-                onClick = onOpenWeather,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(10.dp),
-            ) {
-                Text("Ride Forecast", color = Color(0xFFFFD600))
-            }
-            OutlinedButton(
-                onClick = onOpenBikes,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(10.dp),
-            ) {
-                Text("Bike Builds", color = Color(0xFFFFD600))
-            }
-            OutlinedButton(
-                onClick = onOpenEventPhotos,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(10.dp),
-            ) {
-                Text("Ride Photos", color = Color(0xFFFFD600))
-            }
-            OutlinedButton(
-                onClick = onOpenDirectory,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(10.dp),
-            ) {
-                Text("Local Businesses", color = Color(0xFFFFD600))
-            }
-            if (signedIn != null) {
-                OutlinedButton(
-                    onClick = onOpenPaywall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(10.dp),
-                ) {
-                    Text("Subscription", color = Color(0xFFFFD600))
-                }
-            }
-            OutlinedButton(
-                onClick = onOpenProfile,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(10.dp),
-            ) {
-                Text("My Profile", color = Color(0xFFFFD600))
-            }
-            if (BuildConfig.ADMIN_PIN.isNotBlank()) {
-                OutlinedButton(
-                    onClick = onOpenAdmin,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(10.dp),
-                ) {
-                    Text("Admin", color = Color(0xFFFFD600))
-                }
-            }
-            OutlinedButton(
-                onClick = onSignOut,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(10.dp),
-            ) {
-                Text(if (signedIn != null) "Sign Out" else "Back to Sign In", color = Color(0xFFFFD600))
-            }
-            AdMobBanner()
+        OnThaSetShield(size = 84.dp)
+        Text(
+            "Welcome",
+            color = Color.White,
+            fontWeight = FontWeight.Black,
+            fontSize = 22.sp,
+        )
+        Text(
+            signedIn?.email ?: "Guest mode",
+            color = Color.Gray,
+            fontSize = 13.sp,
+        )
+        Spacer(Modifier.height(4.dp))
+        if (signedIn != null && needsSetup) {
+            PrimaryTile("Finish Setting Up Your Profile", onOpenOnboarding)
         }
+        PrimaryTile("Browse Events", onOpenEvents)
+        SecondaryTile("National Run Calendar", onOpenCalendar)
+        SecondaryTile("Ride Forecast", onOpenWeather)
+        SecondaryTile("Bike Builds", onOpenBikes)
+        SecondaryTile("Ride Photos", onOpenEventPhotos)
+        SecondaryTile("Local Businesses", onOpenDirectory)
+        if (signedIn != null) SecondaryTile("Subscription", onOpenPaywall)
+        SecondaryTile("My Profile", onOpenProfile)
+        if (BuildConfig.ADMIN_PIN.isNotBlank()) SecondaryTile("Admin", onOpenAdmin)
+        SecondaryTile(
+            label = if (signedIn != null) "Sign Out" else "Back to Sign In",
+            onClick = onSignOut,
+        )
+        Spacer(Modifier.height(8.dp))
+        AdMobBanner()
+    }
+}
+
+private val Yellow = Color(0xFFFFD600)
+private val TileHeight = 46.dp
+
+@Composable
+private fun PrimaryTile(label: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().height(TileHeight),
+        shape = RoundedCornerShape(10.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Yellow, contentColor = Color.Black),
+    ) {
+        Text(label, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+    }
+}
+
+@Composable
+private fun SecondaryTile(label: String, onClick: () -> Unit) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().height(TileHeight),
+        shape = RoundedCornerShape(10.dp),
+    ) {
+        Text(label, color = Yellow, fontSize = 14.sp)
     }
 }
