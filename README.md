@@ -86,6 +86,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Ride Photos — feed + upload (event_photos table, event-photos bucket)
 - [x] AdMob banner — anchored on Home (renders only when `ADMOB_APP_ID` + `ADMOB_BANNER_UNIT_ID` are configured; SDK falls back to Google's test app ID otherwise so the SDK still initializes cleanly)
 - [x] Admin v1 — PIN-gated event moderation (delete events). Reports / ad approvals deferred.
+- [x] Onboarding wizard — single-screen welcome that captures display name, hometown, bio, bike, riding-since, and club for fresh accounts; surfaces as a "Finish Setting Up Your Profile" CTA on Home until those fields are filled.
 - [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays

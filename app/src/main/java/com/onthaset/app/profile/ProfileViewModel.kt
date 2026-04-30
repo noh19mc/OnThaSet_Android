@@ -48,6 +48,20 @@ class ProfileViewModel @Inject constructor(
     private val _uploading = MutableStateFlow<ImageKind?>(null)
     val uploading: StateFlow<ImageKind?> = _uploading.asStateFlow()
 
+    /**
+     * Heuristic for "needs the welcome wizard". Mirrors the iOS isProfileComplete check —
+     * a brand-new user fresh out of ensure() has all three of these blank.
+     */
+    val needsSetup: StateFlow<Boolean> = kotlinx.coroutines.flow.MutableStateFlow(false).also { flow ->
+        viewModelScope.launch {
+            _state.collect { s ->
+                flow.value = (s as? ProfileUiState.Ready)?.profile?.let { p ->
+                    p.bio.isBlank() && p.hometown.isBlank() && p.favoriteRide.isBlank()
+                } ?: false
+            }
+        }
+    }
+
     init { load() }
 
     fun load() = viewModelScope.launch {

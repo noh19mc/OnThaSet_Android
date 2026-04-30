@@ -28,6 +28,7 @@ import com.onthaset.app.ads.AdMobBanner
 import com.onthaset.app.auth.AuthState
 import com.onthaset.app.auth.AuthViewModel
 import com.onthaset.app.auth.ui.OnThaSetShield
+import com.onthaset.app.profile.ProfileViewModel
 
 @Composable
 fun HomeScreen(
@@ -38,9 +39,12 @@ fun HomeScreen(
     onOpenBikes: () -> Unit,
     onOpenEventPhotos: () -> Unit,
     onOpenAdmin: () -> Unit,
+    onOpenOnboarding: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.authState.collectAsStateWithLifecycle()
+    val needsSetup by profileViewModel.needsSetup.collectAsStateWithLifecycle()
     val signedIn = state as? AuthState.SignedIn
 
     Box(
@@ -67,6 +71,21 @@ fun HomeScreen(
                 color = Color.Gray,
                 fontSize = 14.sp,
             )
+            if (signedIn != null && needsSetup) {
+                Button(
+                    onClick = onOpenOnboarding,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFD600),
+                        contentColor = Color.Black,
+                    ),
+                ) {
+                    Text("Finish Setting Up Your Profile", fontWeight = FontWeight.Bold)
+                }
+            }
             Button(
                 onClick = onOpenEvents,
                 modifier = Modifier

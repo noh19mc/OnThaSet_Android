@@ -33,6 +33,7 @@ import com.onthaset.app.events.ui.EventsScreen
 import com.onthaset.app.events.ui.NationalCalendarScreen
 import com.onthaset.app.home.HomeScreen
 import com.onthaset.app.profile.ui.EditProfileScreen
+import com.onthaset.app.profile.ui.OnboardingScreen
 import com.onthaset.app.profile.ui.ProfileScreen
 import com.onthaset.app.bikes.ui.AddBikeBuildScreen
 import com.onthaset.app.bikes.ui.BikesScreen
@@ -83,6 +84,13 @@ fun AppNavigation() {
                     onOpenBikes = { navController.navigate(Routes.BIKE_BUILDS) },
                     onOpenEventPhotos = { navController.navigate(Routes.EVENT_PHOTOS) },
                     onOpenAdmin = { navController.navigate(Routes.ADMIN) },
+                    onOpenOnboarding = { navController.navigate(Routes.ONBOARDING) },
+                )
+            }
+            composable(Routes.ONBOARDING) {
+                OnboardingScreen(
+                    onSkip = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() },
                 )
             }
             composable(Routes.ADMIN) {
