@@ -17,7 +17,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,6 +57,7 @@ private val CardBg = Color(0x14FFFFFF)
 fun EventsScreen(
     onEventClick: (String) -> Unit,
     onBack: () -> Unit,
+    onCreate: () -> Unit,
     viewModel: EventsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -77,6 +80,11 @@ fun EventsScreen(
                     }
                 },
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onCreate, containerColor = Yellow, contentColor = Color.Black) {
+                Icon(Icons.Filled.Add, contentDescription = "New event")
+            }
         },
     ) { padding ->
         Box(

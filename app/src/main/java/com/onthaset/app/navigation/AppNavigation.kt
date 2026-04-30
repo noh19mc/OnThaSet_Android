@@ -26,6 +26,7 @@ import com.onthaset.app.auth.AuthState
 import com.onthaset.app.auth.AuthViewModel
 import com.onthaset.app.auth.ui.AuthScreen
 import com.onthaset.app.auth.ui.GateScreen
+import com.onthaset.app.events.ui.CreateEventScreen
 import com.onthaset.app.events.ui.EventDetailScreen
 import com.onthaset.app.events.ui.EventsScreen
 import com.onthaset.app.events.ui.NationalCalendarScreen
@@ -82,6 +83,13 @@ fun AppNavigation() {
                 EventsScreen(
                     onEventClick = { id -> navController.navigate(Routes.eventDetail(id)) },
                     onBack = { navController.popBackStack() },
+                    onCreate = { navController.navigate(Routes.CREATE_EVENT) },
+                )
+            }
+            composable(Routes.CREATE_EVENT) {
+                CreateEventScreen(
+                    onBack = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() },
                 )
             }
             composable(

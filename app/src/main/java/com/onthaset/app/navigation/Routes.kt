@@ -6,6 +6,7 @@ object Routes {
     const val HOME = "home"
     const val EVENTS = "events"
     const val EVENT_DETAIL = "event/{id}"
+    const val CREATE_EVENT = "events/new"
     const val NATIONAL_RUN_CALENDAR = "calendar"
     const val PROFILE = "profile"
     const val EDIT_PROFILE = "profile/edit"

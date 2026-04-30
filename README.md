@@ -73,7 +73,8 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] National Run Calendar — list view with month picker + category filter chips
 - [x] Ride Forecast — Open-Meteo 5-day forecast with rider safety messaging based on wind speed
 - [x] Bike Builds — feed + post with before/after photos
-- [ ] Event creation + Google Play Billing (replaces the iOS StoreKit flow)
+- [x] Event creation — title, category, date+time picker, pipe-delimited location, optional flyer upload (geocoding to lat/lng deferred until we add the map view)
+- [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays
 - [ ] AdMob banner placements
