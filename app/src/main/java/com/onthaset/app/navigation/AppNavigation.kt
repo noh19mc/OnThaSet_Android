@@ -29,6 +29,8 @@ import com.onthaset.app.auth.ui.GateScreen
 import com.onthaset.app.events.ui.EventDetailScreen
 import com.onthaset.app.events.ui.EventsScreen
 import com.onthaset.app.home.HomeScreen
+import com.onthaset.app.profile.ui.EditProfileScreen
+import com.onthaset.app.profile.ui.ProfileScreen
 
 @Composable
 fun AppNavigation() {
@@ -66,6 +68,7 @@ fun AppNavigation() {
             composable(Routes.HOME) {
                 HomeScreen(
                     onOpenEvents = { navController.navigate(Routes.EVENTS) },
+                    onOpenProfile = { navController.navigate(Routes.PROFILE) },
                 )
             }
             composable(Routes.EVENTS) {
@@ -82,7 +85,20 @@ fun AppNavigation() {
                 EventDetailScreen(eventId = id, onBack = { navController.popBackStack() })
             }
             composable(Routes.NATIONAL_RUN_CALENDAR) { Placeholder("National Run Calendar") }
-            composable(Routes.PROFILE) { Placeholder("Profile") }
+            composable(Routes.PROFILE) {
+                ProfileScreen(
+                    onBack = { navController.popBackStack() },
+                    onEdit = { navController.navigate(Routes.EDIT_PROFILE) },
+                )
+            }
+            composable(Routes.EDIT_PROFILE) {
+                val parentEntry = remember(it) { navController.getBackStackEntry(Routes.PROFILE) }
+                EditProfileScreen(
+                    onBack = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() },
+                    viewModel = androidx.hilt.navigation.compose.hiltViewModel(parentEntry),
+                )
+            }
             composable(Routes.BIKE_BUILDS) { Placeholder("Bike Builds") }
             composable(Routes.WEATHER) { Placeholder("Ride Forecast") }
         }

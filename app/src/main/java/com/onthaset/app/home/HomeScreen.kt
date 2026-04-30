@@ -30,6 +30,7 @@ import com.onthaset.app.auth.ui.OnThaSetShield
 @Composable
 fun HomeScreen(
     onOpenEvents: () -> Unit,
+    onOpenProfile: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.authState.collectAsStateWithLifecycle()
@@ -71,6 +72,15 @@ fun HomeScreen(
                 ),
             ) {
                 Text("Browse Events", fontWeight = FontWeight.Bold)
+            }
+            OutlinedButton(
+                onClick = onOpenProfile,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                Text("My Profile", color = Color(0xFFFFD600))
             }
             OutlinedButton(
                 onClick = viewModel::signOut,
