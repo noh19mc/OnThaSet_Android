@@ -27,6 +27,7 @@ app/src/main/java/com/onthaset/app/
 ├── bikes/        # Bike Builds feed + create with before/after photos
 ├── eventphotos/  # Ride Photos feed + upload (event_photos table)
 ├── ads/          # AdMob banner Composable
+├── directory/    # Local Business Directory (`ads` table — businesses paying to be listed)
 ├── admin/        # PIN-gated event moderation
 ├── weather/      # 5-day Ride Forecast (Open-Meteo) with rider safety chip
 ├── imaging/      # Image compression + Supabase Storage upload helpers
@@ -90,6 +91,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Onboarding wizard — single-screen welcome that captures display name, hometown, bio, bike, riding-since, and club for fresh accounts; surfaces as a "Finish Setting Up Your Profile" CTA on Home until those fields are filled.
 - [x] Public rider profile — tap "Posted by" on any event to open a read-only profile of that rider.
 - [x] Event reporting — flag inappropriate / spam / duplicate events, written to `event_reports` for moderators.
+- [x] Local Business Directory — read-only feed of active rows from the `ads` table with one-tap Call / Website actions; sponsored + premium listings float to the top.
 - [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays

@@ -24,6 +24,7 @@ object Routes {
     const val BIKE_BUILDS = "bikes"
     const val ADD_BIKE_BUILD = "bikes/new"
     const val WEATHER = "weather"
+    const val DIRECTORY = "directory"
     const val EVENT_PHOTOS = "event-photos"
     const val ADD_EVENT_PHOTO = "event-photos/new"
     const val ADMIN = "admin"

@@ -38,6 +38,7 @@ fun HomeScreen(
     onOpenWeather: () -> Unit,
     onOpenBikes: () -> Unit,
     onOpenEventPhotos: () -> Unit,
+    onOpenDirectory: () -> Unit,
     onOpenAdmin: () -> Unit,
     onOpenOnboarding: () -> Unit,
     onSignOut: () -> Unit,
@@ -135,6 +136,15 @@ fun HomeScreen(
                 shape = RoundedCornerShape(10.dp),
             ) {
                 Text("Ride Photos", color = Color(0xFFFFD600))
+            }
+            OutlinedButton(
+                onClick = onOpenDirectory,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                Text("Local Businesses", color = Color(0xFFFFD600))
             }
             OutlinedButton(
                 onClick = onOpenProfile,

@@ -40,6 +40,7 @@ import com.onthaset.app.reports.ui.ReportEventScreen
 import com.onthaset.app.bikes.ui.AddBikeBuildScreen
 import com.onthaset.app.bikes.ui.BikesScreen
 import com.onthaset.app.admin.ui.AdminScreen
+import com.onthaset.app.directory.ui.DirectoryScreen
 import com.onthaset.app.eventphotos.ui.AddEventPhotoScreen
 import com.onthaset.app.eventphotos.ui.EventPhotosScreen
 import com.onthaset.app.weather.ui.WeatherScreen
@@ -85,6 +86,7 @@ fun AppNavigation() {
                     onOpenWeather = { navController.navigate(Routes.WEATHER) },
                     onOpenBikes = { navController.navigate(Routes.BIKE_BUILDS) },
                     onOpenEventPhotos = { navController.navigate(Routes.EVENT_PHOTOS) },
+                    onOpenDirectory = { navController.navigate(Routes.DIRECTORY) },
                     onOpenAdmin = { navController.navigate(Routes.ADMIN) },
                     onOpenOnboarding = { navController.navigate(Routes.ONBOARDING) },
                     // Guest mode is a nav-layer flag separate from the auth session, so
@@ -104,6 +106,9 @@ fun AppNavigation() {
             }
             composable(Routes.ADMIN) {
                 AdminScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Routes.DIRECTORY) {
+                DirectoryScreen(onBack = { navController.popBackStack() })
             }
             composable(Routes.EVENTS) {
                 EventsScreen(
