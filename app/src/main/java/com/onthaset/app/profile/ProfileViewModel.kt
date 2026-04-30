@@ -1,16 +1,25 @@
 package com.onthaset.app.profile
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.onthaset.app.auth.AuthRepository
 import com.onthaset.app.auth.AuthState
+import com.onthaset.app.imaging.Buckets
+import com.onthaset.app.imaging.StoragePaths
+import com.onthaset.app.imaging.StorageRepository
+import com.onthaset.app.imaging.toCompressedJpeg
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 sealed interface ProfileUiState {
@@ -20,10 +29,14 @@ sealed interface ProfileUiState {
     data object NotSignedIn : ProfileUiState
 }
 
+enum class ImageKind { Profile, Background }
+
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val profiles: ProfileRepository,
     private val auth: AuthRepository,
+    private val storage: StorageRepository,
+    @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
@@ -31,6 +44,9 @@ class ProfileViewModel @Inject constructor(
 
     private val _saving = MutableStateFlow(false)
     val saving: StateFlow<Boolean> = _saving.asStateFlow()
+
+    private val _uploading = MutableStateFlow<ImageKind?>(null)
+    val uploading: StateFlow<ImageKind?> = _uploading.asStateFlow()
 
     init { load() }
 
@@ -57,6 +73,38 @@ class ProfileViewModel @Inject constructor(
             }
             .onFailure { e -> _state.value = ProfileUiState.Error(e.message ?: "Save failed") }
         _saving.value = false
+    }
+
+    fun uploadImage(kind: ImageKind, uri: Uri) = viewModelScope.launch {
+        val current = _state.value
+        if (current !is ProfileUiState.Ready) return@launch
+        _uploading.value = kind
+        runCatching {
+            val bytes = withContext(Dispatchers.IO) {
+                appContext.contentResolver.toCompressedJpeg(uri)
+            }
+            val userId = current.profile.appleUserId
+            val path = when (kind) {
+                ImageKind.Profile -> StoragePaths.profile(userId)
+                ImageKind.Background -> StoragePaths.background(userId)
+            }
+            val url = storage.upload(Buckets.PROFILE_IMAGES, path, bytes)
+            // Bust CDN cache so the new image shows immediately
+            val cacheBusted = "$url?v=${System.currentTimeMillis()}"
+            when (kind) {
+                ImageKind.Profile -> {
+                    profiles.updateProfileImageUrl(userId, cacheBusted)
+                    _state.update { ProfileUiState.Ready(current.profile.copy(profileImageUrl = cacheBusted)) }
+                }
+                ImageKind.Background -> {
+                    profiles.updateBackgroundImageUrl(userId, cacheBusted)
+                    _state.update { ProfileUiState.Ready(current.profile.copy(backgroundImageUrl = cacheBusted)) }
+                }
+            }
+        }.onFailure { e ->
+            _state.value = ProfileUiState.Error(e.message ?: "Upload failed")
+        }
+        _uploading.value = null
     }
 
     private fun applyUpdate(p: UserProfile, u: ProfileUpdate) = p.copy(

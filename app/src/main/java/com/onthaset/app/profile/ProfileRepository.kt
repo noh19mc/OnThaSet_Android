@@ -31,4 +31,16 @@ class ProfileRepository @Inject constructor(
             filter { eq("apple_user_id", userId) }
         }
     }
+
+    suspend fun updateProfileImageUrl(userId: String, url: String) {
+        postgrest.from("users").update(mapOf("profile_image_url" to url)) {
+            filter { eq("apple_user_id", userId) }
+        }
+    }
+
+    suspend fun updateBackgroundImageUrl(userId: String, url: String) {
+        postgrest.from("users").update(mapOf("background_image_url" to url)) {
+            filter { eq("apple_user_id", userId) }
+        }
+    }
 }

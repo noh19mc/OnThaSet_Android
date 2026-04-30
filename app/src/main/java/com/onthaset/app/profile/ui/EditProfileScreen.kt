@@ -1,18 +1,29 @@
 package com.onthaset.app.profile.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+import com.onthaset.app.profile.ImageKind
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -80,6 +91,9 @@ fun EditProfileScreen(
                 .background(Color.Black)
                 .padding(padding),
             onSave = { update -> viewModel.save(update, onSaved) },
+            onPickProfileImage = { uri -> uri?.let { viewModel.uploadImage(ImageKind.Profile, it) } },
+            onPickBackgroundImage = { uri -> uri?.let { viewModel.uploadImage(ImageKind.Background, it) } },
+            uploading = viewModel.uploading.collectAsStateWithLifecycle().value,
         )
     }
 }
@@ -88,8 +102,11 @@ fun EditProfileScreen(
 private fun EditForm(
     initial: UserProfile,
     saving: Boolean,
+    uploading: ImageKind?,
     modifier: Modifier,
     onSave: (ProfileUpdate) -> Unit,
+    onPickProfileImage: (android.net.Uri?) -> Unit,
+    onPickBackgroundImage: (android.net.Uri?) -> Unit,
 ) {
     var displayName by remember { mutableStateOf(initial.displayName) }
     var bio by remember { mutableStateOf(initial.bio) }
@@ -104,12 +121,28 @@ private fun EditForm(
     var youtube by remember { mutableStateOf(initial.youtubeChannel) }
     var facebook by remember { mutableStateOf(initial.facebookHandle) }
 
+    val pickProfile = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia(),
+    ) { uri -> onPickProfileImage(uri) }
+    val pickBackground = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia(),
+    ) { uri -> onPickBackgroundImage(uri) }
+    val imageOnly = PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        ImagePickers(
+            profileUrl = initial.profileImageUrl,
+            backgroundUrl = initial.backgroundImageUrl,
+            uploading = uploading,
+            onPickProfile = { pickProfile.launch(imageOnly) },
+            onPickBackground = { pickBackground.launch(imageOnly) },
+        )
+
         SectionHeader("About")
         DarkField("Display Name", displayName) { displayName = it }
         DarkField("Bio", bio, singleLine = false) { bio = it }
@@ -162,6 +195,78 @@ private fun EditForm(
             }
         }
     }
+}
+
+@Composable
+private fun ImagePickers(
+    profileUrl: String?,
+    backgroundUrl: String?,
+    uploading: ImageKind?,
+    onPickProfile: () -> Unit,
+    onPickBackground: () -> Unit,
+) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(2.5f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.DarkGray)
+                .clickable(enabled = uploading == null, onClick = onPickBackground),
+        ) {
+            if (backgroundUrl != null) {
+                AsyncImage(
+                    model = backgroundUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            if (uploading == ImageKind.Background) {
+                Box(modifier = Modifier.fillMaxSize().background(Color(0x80000000)), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Yellow)
+                }
+            }
+            Text(
+                "Tap to change cover",
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(8.dp)
+                    .background(Color(0x80000000), RoundedCornerShape(6.dp))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+            )
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 12.dp, top = 0.dp)
+                .size(96.dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+                .padding(3.dp)
+                .clip(CircleShape)
+                .background(Color.DarkGray)
+                .clickable(enabled = uploading == null, onClick = onPickProfile),
+        ) {
+            if (profileUrl != null) {
+                AsyncImage(
+                    model = profileUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize().clip(CircleShape),
+                )
+            }
+            if (uploading == ImageKind.Profile) {
+                Box(modifier = Modifier.fillMaxSize().background(Color(0x80000000)), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Yellow, strokeWidth = 2.dp, modifier = Modifier.size(28.dp))
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(48.dp)) // breathing room under the avatar
 }
 
 @Composable
