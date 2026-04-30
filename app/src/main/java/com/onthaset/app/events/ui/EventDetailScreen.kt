@@ -1,7 +1,9 @@
 package com.onthaset.app.events.ui
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +54,7 @@ fun EventDetailScreen(
 ) {
     LaunchedEffect(eventId) { viewModel.load(eventId) }
     val event by viewModel.event.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Scaffold(
         containerColor = Color.Black,
@@ -64,6 +67,17 @@ fun EventDetailScreen(
                 },
                 actions = {
                     val current = event
+                    if (current != null) {
+                        TextButton(onClick = {
+                            val share = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, buildShareText(current))
+                            }
+                            context.startActivity(Intent.createChooser(share, "Share event"))
+                        }) {
+                            Text("Share", color = Yellow)
+                        }
+                    }
                     if (current?.id != null) {
                         TextButton(onClick = { onReport(current.id, current.title) }) {
                             Text("Report", color = Color(0xFFFF6B6B))
@@ -127,6 +141,20 @@ fun EventDetailScreen(
                 )
             }
         }
+    }
+}
+
+private fun buildShareText(e: com.onthaset.app.events.Event): String {
+    // Pipe-delimited location is a backend convention; users only want the human bits.
+    val location = e.locationName.split('|').filter { it.isNotBlank() }.joinToString(", ")
+    val icon = e.categoryEnum?.icon ?: "🏍️"
+    return buildString {
+        append("$icon ${e.title}\n")
+        append("📅 ${e.date.formatEventDay()} at ${e.date.formatEventTime()}\n")
+        if (location.isNotBlank()) append("📍 $location\n")
+        if (e.price.isNotBlank() && e.price != "0.00") append("💵 ${e.price}\n")
+        if (e.details.isNotBlank()) append("\n${e.details}\n")
+        append("\nShared from On Tha Set")
     }
 }
 

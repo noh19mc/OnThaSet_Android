@@ -92,6 +92,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Public rider profile — tap "Posted by" on any event to open a read-only profile of that rider.
 - [x] Event reporting — flag inappropriate / spam / duplicate events, written to `event_reports` for moderators.
 - [x] Local Business Directory — read-only feed of active rows from the `ads` table with one-tap Call / Website actions; sponsored + premium listings float to the top.
+- [x] Event sharing — system share sheet with formatted text (icon + title + date/time + location + price + details).
 - [ ] Google Play Billing — replaces the iOS StoreKit subscription / per-event purchase flow
 - [ ] Ride Forecast — 5-day weather for current location or event location
 - [ ] National Calendar map — Compose Google Maps with state-shaped overlays
