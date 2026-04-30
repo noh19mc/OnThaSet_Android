@@ -85,6 +85,13 @@ fun AppNavigation() {
                     onOpenEventPhotos = { navController.navigate(Routes.EVENT_PHOTOS) },
                     onOpenAdmin = { navController.navigate(Routes.ADMIN) },
                     onOpenOnboarding = { navController.navigate(Routes.ONBOARDING) },
+                    // Guest mode is a nav-layer flag separate from the auth session, so
+                    // a real signOut() call does nothing for guests. Clear both here
+                    // so "Sign Out" routes back to the gate either way.
+                    onSignOut = {
+                        guestMode = false
+                        authViewModel.signOut()
+                    },
                 )
             }
             composable(Routes.ONBOARDING) {

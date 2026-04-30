@@ -40,6 +40,7 @@ fun HomeScreen(
     onOpenEventPhotos: () -> Unit,
     onOpenAdmin: () -> Unit,
     onOpenOnboarding: () -> Unit,
+    onSignOut: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -156,13 +157,13 @@ fun HomeScreen(
                 }
             }
             OutlinedButton(
-                onClick = viewModel::signOut,
+                onClick = onSignOut,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
                 shape = RoundedCornerShape(10.dp),
             ) {
-                Text("Sign Out", color = Color(0xFFFFD600))
+                Text(if (signedIn != null) "Sign Out" else "Back to Sign In", color = Color(0xFFFFD600))
             }
             AdMobBanner()
         }
