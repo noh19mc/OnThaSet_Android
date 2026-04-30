@@ -3,7 +3,13 @@ package com.onthaset.app.navigation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,11 +20,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -31,7 +40,7 @@ import com.onthaset.app.events.ui.CreateEventScreen
 import com.onthaset.app.events.ui.EventDetailScreen
 import com.onthaset.app.events.ui.EventsScreen
 import com.onthaset.app.events.ui.NationalCalendarScreen
-import com.onthaset.app.home.HomeScreen
+import com.onthaset.app.home.MoreScreen
 import com.onthaset.app.profile.ui.EditProfileScreen
 import com.onthaset.app.profile.ui.OnboardingScreen
 import com.onthaset.app.profile.ui.ProfileScreen
@@ -55,21 +64,58 @@ fun AppNavigation() {
 
     LaunchedEffect(authState, guestMode) {
         when (authState) {
-            is AuthState.SignedIn -> navController.navigateSingleTopTo(Routes.HOME)
+            is AuthState.SignedIn -> navController.navigateSingleTopTo(Routes.EVENTS)
             is AuthState.SignedOut -> {
-                if (guestMode) navController.navigateSingleTopTo(Routes.HOME)
+                if (guestMode) navController.navigateSingleTopTo(Routes.EVENTS)
                 else navController.navigateSingleTopTo(Routes.GATE)
             }
             AuthState.Loading -> Unit
         }
     }
 
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+    val showBottomNav = authState is AuthState.SignedIn || (authState is AuthState.SignedOut && guestMode)
+    val isAuthRoute = currentRoute in routesWithoutBottomNav
+
     when (authState) {
         AuthState.Loading -> SplashLoading()
-        else -> NavHost(
-            navController = navController,
-            startDestination = Routes.GATE,
-        ) {
+        else -> Scaffold(
+            containerColor = Color.Black,
+            bottomBar = {
+                if (showBottomNav && !isAuthRoute) {
+                    NavigationBar(containerColor = Color(0xFF111111)) {
+                        BottomTab.entries.forEach { tab ->
+                            val selected = tab.matches(currentRoute)
+                            NavigationBarItem(
+                                selected = selected,
+                                onClick = {
+                                    navController.navigate(tab.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(tab.icon, contentDescription = tab.label) },
+                                label = { Text(tab.label, fontSize = 11.sp) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = Color.Black,
+                                    selectedTextColor = Color(0xFFFFD600),
+                                    indicatorColor = Color(0xFFFFD600),
+                                    unselectedIconColor = Color.Gray,
+                                    unselectedTextColor = Color.Gray,
+                                ),
+                            )
+                        }
+                    }
+                }
+            },
+        ) { padding ->
+            NavHost(
+                navController = navController,
+                startDestination = Routes.GATE,
+                modifier = Modifier.padding(padding),
+            ) {
             composable(Routes.GATE) {
                 GateScreen(
                     onContinueWithEmail = { navController.navigate(Routes.AUTH) },
@@ -79,12 +125,8 @@ fun AppNavigation() {
             composable(Routes.AUTH) {
                 AuthScreen(onBack = { navController.popBackStack() })
             }
-            composable(Routes.HOME) {
-                HomeScreen(
-                    onOpenEvents = { navController.navigate(Routes.EVENTS) },
-                    onOpenProfile = { navController.navigate(Routes.PROFILE) },
-                    onOpenCalendar = { navController.navigate(Routes.NATIONAL_RUN_CALENDAR) },
-                    onOpenWeather = { navController.navigate(Routes.WEATHER) },
+            composable(Routes.MORE) {
+                MoreScreen(
                     onOpenBikes = { navController.navigate(Routes.BIKE_BUILDS) },
                     onOpenEventPhotos = { navController.navigate(Routes.EVENT_PHOTOS) },
                     onOpenDirectory = { navController.navigate(Routes.DIRECTORY) },
@@ -246,6 +288,7 @@ fun AppNavigation() {
                     initialLng = lng,
                     initialLabel = label.ifBlank { null },
                 )
+            }
             }
         }
     }

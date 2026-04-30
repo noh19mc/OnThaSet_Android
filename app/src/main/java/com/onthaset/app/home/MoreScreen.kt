@@ -32,12 +32,14 @@ import com.onthaset.app.auth.AuthViewModel
 import com.onthaset.app.auth.ui.OnThaSetShield
 import com.onthaset.app.profile.ProfileViewModel
 
+/**
+ * "More" destination — landing for everything that doesn't fit in the bottom nav:
+ * onboarding CTA (when needed), Bike Builds, Ride Photos, Local Businesses, Subscription,
+ * Admin (when PIN configured), and Sign Out. Top of the screen has the welcome header
+ * since this is the first thing a signed-in user sees by tapping the More tab.
+ */
 @Composable
-fun HomeScreen(
-    onOpenEvents: () -> Unit,
-    onOpenProfile: () -> Unit,
-    onOpenCalendar: () -> Unit,
-    onOpenWeather: () -> Unit,
+fun MoreScreen(
     onOpenBikes: () -> Unit,
     onOpenEventPhotos: () -> Unit,
     onOpenDirectory: () -> Unit,
@@ -45,12 +47,12 @@ fun HomeScreen(
     onOpenAdmin: () -> Unit,
     onOpenOnboarding: () -> Unit,
     onSignOut: () -> Unit,
-    viewModel: AuthViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
-    val state by viewModel.authState.collectAsStateWithLifecycle()
+    val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val needsSetup by profileViewModel.needsSetup.collectAsStateWithLifecycle()
-    val signedIn = state as? AuthState.SignedIn
+    val signedIn = authState as? AuthState.SignedIn
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,29 +64,17 @@ fun HomeScreen(
             .padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
         OnThaSetShield(size = 84.dp)
-        Text(
-            "Welcome",
-            color = Color.White,
-            fontWeight = FontWeight.Black,
-            fontSize = 22.sp,
-        )
-        Text(
-            signedIn?.email ?: "Guest mode",
-            color = Color.Gray,
-            fontSize = 13.sp,
-        )
+        Text("Welcome", color = Color.White, fontWeight = FontWeight.Black, fontSize = 22.sp)
+        Text(signedIn?.email ?: "Guest mode", color = Color.Gray, fontSize = 13.sp)
         Spacer(Modifier.height(4.dp))
+
         if (signedIn != null && needsSetup) {
             PrimaryTile("Finish Setting Up Your Profile", onOpenOnboarding)
         }
-        PrimaryTile("Browse Events", onOpenEvents)
-        SecondaryTile("National Run Calendar", onOpenCalendar)
-        SecondaryTile("Ride Forecast", onOpenWeather)
         SecondaryTile("Bike Builds", onOpenBikes)
         SecondaryTile("Ride Photos", onOpenEventPhotos)
         SecondaryTile("Local Businesses", onOpenDirectory)
         if (signedIn != null) SecondaryTile("Subscription", onOpenPaywall)
-        SecondaryTile("My Profile", onOpenProfile)
         if (BuildConfig.ADMIN_PIN.isNotBlank()) SecondaryTile("Admin", onOpenAdmin)
         SecondaryTile(
             label = if (signedIn != null) "Sign Out" else "Back to Sign In",

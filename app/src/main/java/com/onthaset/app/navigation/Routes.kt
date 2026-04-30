@@ -4,6 +4,7 @@ object Routes {
     const val GATE = "gate"
     const val AUTH = "auth"
     const val HOME = "home"
+    const val MORE = "more"
     const val EVENTS = "events"
     const val EVENT_DETAIL = "event/{id}"
     const val CREATE_EVENT = "events/new"
