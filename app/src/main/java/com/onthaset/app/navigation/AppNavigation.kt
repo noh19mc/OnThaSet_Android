@@ -51,6 +51,7 @@ import com.onthaset.app.bikes.ui.BikesScreen
 import com.onthaset.app.admin.ui.AdminScreen
 import com.onthaset.app.billing.ui.PaywallScreen
 import com.onthaset.app.directory.ui.DirectoryScreen
+import com.onthaset.app.directory.ui.SubmitAdScreen
 import com.onthaset.app.eventphotos.ui.AddEventPhotoScreen
 import com.onthaset.app.eventphotos.ui.EventPhotosScreen
 import com.onthaset.app.weather.ui.WeatherScreen
@@ -152,7 +153,16 @@ fun AppNavigation() {
                 AdminScreen(onBack = { navController.popBackStack() })
             }
             composable(Routes.DIRECTORY) {
-                DirectoryScreen(onBack = { navController.popBackStack() })
+                DirectoryScreen(
+                    onBack = { navController.popBackStack() },
+                    onSubmitAd = { navController.navigate(Routes.SUBMIT_AD) },
+                )
+            }
+            composable(Routes.SUBMIT_AD) {
+                SubmitAdScreen(
+                    onBack = { navController.popBackStack() },
+                    onSubmitted = { navController.popBackStack() },
+                )
             }
             composable(Routes.PAYWALL) {
                 PaywallScreen(onBack = { navController.popBackStack() })
@@ -160,7 +170,6 @@ fun AppNavigation() {
             composable(Routes.EVENTS) {
                 EventsScreen(
                     onEventClick = { id -> navController.navigate(Routes.eventDetail(id)) },
-                    onBack = { navController.popBackStack() },
                     onCreate = { navController.navigate(Routes.CREATE_EVENT) },
                 )
             }

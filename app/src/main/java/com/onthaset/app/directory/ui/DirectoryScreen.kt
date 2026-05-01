@@ -52,6 +52,7 @@ private val CardBg = Color(0x14FFFFFF)
 @Composable
 fun DirectoryScreen(
     onBack: () -> Unit,
+    onSubmitAd: () -> Unit,
     viewModel: DirectoryViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -68,6 +69,11 @@ fun DirectoryScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
                 navigationIcon = { TextButton(onClick = onBack) { Text("Back", color = Yellow) } },
+                actions = {
+                    TextButton(onClick = onSubmitAd) {
+                        Text("Advertise", color = Yellow, fontWeight = FontWeight.Bold)
+                    }
+                },
             )
         },
     ) { padding ->

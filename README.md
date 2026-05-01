@@ -79,7 +79,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 
 - [x] Project scaffold + signed-commit pipeline
 - [x] Auth — email/password, sign-up, password reset, session persistence, "Explore Without Signing In" guest mode
-- [x] Events — upcoming list with iOS-matching weekend cutoff, detail screen
+- [x] Events — three-segment view (**Nearby** / **All** / **Calendar**): Nearby uses GPS + radius (100mi → MAX) + time-range chips (Today / Week / Month / All Upcoming) with EXPAND-RADIUS / SHOW-ALL fallbacks; All is the upcoming-events list with iOS-matching weekend cutoff; Calendar is a month grid with day-tap to filter, navigation between months, and an event dot indicator
 - [x] Profile — view + edit text fields, profile/cover photo upload
 - [x] National Run Calendar — list view with month picker + category filter chips
 - [x] Ride Forecast — Open-Meteo 5-day forecast with rider safety chip; supports city search, "use my location" (GPS via FusedLocationProviderClient), and per-event launch from the Event detail screen
@@ -92,7 +92,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Onboarding wizard — single-screen welcome that captures display name, hometown, bio, bike, riding-since, and club for fresh accounts; surfaces as a "Finish Setting Up Your Profile" CTA on Home until those fields are filled.
 - [x] Public rider profile — tap "Posted by" on any event to open a read-only profile of that rider.
 - [x] Event reporting — flag inappropriate / spam / duplicate events, written to `event_reports` for moderators.
-- [x] Local Business Directory — read-only feed of active rows from the `ads` table with one-tap Call / Website actions; sponsored + premium listings float to the top.
+- [x] Local Business Directory — read-only feed of active rows from the `ads` table with one-tap Call / Website actions; sponsored + premium listings float to the top. "Advertise" action in the top bar opens a submission form (Basic / Featured / Premium plan tiers, business details, optional banner upload) that inserts into `ads` with status = pending for admin approval.
 - [x] Event sharing — system share sheet with formatted text (icon + title + date/time + location + price + details).
 - [x] Google Play Billing — paywall reads subscription product from Play Console (configured via `BILLING_SUBSCRIPTION_PRODUCT_ID`), launches the Play purchase flow, acknowledges the purchase, and writes `users.has_subscription = true` so iOS sees the upgrade. Server-side validation (Real-Time Developer Notifications webhook) is recommended before production.
 

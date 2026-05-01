@@ -19,20 +19,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,17 +56,24 @@ import com.onthaset.app.events.formatEventTime
 
 private val Yellow = Color(0xFFFFD600)
 private val CardBg = Color(0x14FFFFFF)
+private val SegmentBg = Color(0x14FFFFFF)
+
+private enum class EventsTab(val label: String) {
+    Nearby("Nearby"),
+    All("All"),
+    Calendar("Calendar"),
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventsScreen(
     onEventClick: (String) -> Unit,
-    onBack: () -> Unit,
     onCreate: () -> Unit,
     viewModel: EventsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
+    var tab by remember { mutableStateOf(EventsTab.Nearby) }
 
     Scaffold(
         containerColor = Color.Black,
@@ -70,14 +81,11 @@ fun EventsScreen(
             TopAppBar(
                 title = { Text("Events", color = Color.White, fontWeight = FontWeight.Black) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
-                navigationIcon = {
-                    TextButton(onClick = onBack) {
-                        Text("Back", color = Yellow)
-                    }
-                },
                 actions = {
-                    IconButton(onClick = viewModel::refresh) {
-                        Icon(Icons.Filled.Refresh, contentDescription = "Refresh", tint = Yellow)
+                    if (tab == EventsTab.All) {
+                        IconButton(onClick = viewModel::refresh) {
+                            Icon(Icons.Filled.Refresh, contentDescription = "Refresh", tint = Yellow)
+                        }
                     }
                 },
             )
@@ -88,21 +96,81 @@ fun EventsScreen(
             }
         },
     ) { padding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black)
                 .padding(padding),
         ) {
-            when (val s = state) {
-                is EventsUiState.Loading -> CenteredLoader()
-                is EventsUiState.Error -> ErrorPane(s.message, onRetry = viewModel::refresh)
-                is EventsUiState.Ready -> {
-                    if (s.events.isEmpty()) EmptyPane(onRefresh = viewModel::refresh)
-                    else EventsList(events = s.events, refreshing = refreshing, onClick = onEventClick)
+            SegmentedTabs(selected = tab, onSelect = { tab = it })
+            Box(modifier = Modifier.weight(1f)) {
+                when (tab) {
+                    EventsTab.Nearby -> NearbyEventsScreen(onEventClick = onEventClick)
+                    EventsTab.All -> AllEventsBody(
+                        state = state,
+                        refreshing = refreshing,
+                        onClick = onEventClick,
+                        onRetry = viewModel::refresh,
+                    )
+                    EventsTab.Calendar -> {
+                        val ready = state as? EventsUiState.Ready
+                        if (ready != null) {
+                            EventsCalendarView(events = ready.events, onEventClick = onEventClick)
+                        } else {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(color = Yellow)
+                            }
+                        }
+                    }
                 }
             }
-            Box(modifier = Modifier.align(Alignment.BottomCenter)) { AdMobBanner() }
+            AdMobBanner()
+        }
+    }
+}
+
+@Composable
+private fun SegmentedTabs(selected: EventsTab, onSelect: (EventsTab) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(SegmentBg, RoundedCornerShape(10.dp)),
+    ) {
+        EventsTab.entries.forEach { t ->
+            val active = t == selected
+            Surface(
+                onClick = { onSelect(t) },
+                color = if (active) Yellow else Color.Transparent,
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.weight(1f).height(40.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        t.label,
+                        color = if (active) Color.Black else Color.Gray,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AllEventsBody(
+    state: EventsUiState,
+    refreshing: Boolean,
+    onClick: (String) -> Unit,
+    onRetry: () -> Unit,
+) {
+    when (state) {
+        is EventsUiState.Loading -> CenteredLoader()
+        is EventsUiState.Error -> ErrorPane(state.message, onRetry = onRetry)
+        is EventsUiState.Ready -> {
+            if (state.events.isEmpty()) EmptyPane(onRefresh = onRetry)
+            else EventsList(events = state.events, refreshing = refreshing, onClick = onClick)
         }
     }
 }
@@ -169,8 +237,9 @@ private fun EventRow(event: Event, onClick: () -> Unit) {
                 fontSize = 13.sp,
             )
             Spacer(Modifier.height(2.dp))
-            Text(event.locationName, color = Color.LightGray, fontSize = 13.sp)
-            if (event.price.isNotBlank()) {
+            Text(event.locationName.split('|').filter { it.isNotBlank() }.joinToString(", "),
+                color = Color.LightGray, fontSize = 13.sp)
+            if (event.price.isNotBlank() && event.price != "0.00") {
                 Spacer(Modifier.height(2.dp))
                 Text(event.price, color = Color.Gray, fontSize = 12.sp)
             }

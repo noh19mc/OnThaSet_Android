@@ -32,6 +32,7 @@ object Routes {
         return "weather?lat=$lat&lng=$lng&label=$encoded"
     }
     const val DIRECTORY = "directory"
+    const val SUBMIT_AD = "directory/submit"
     const val PAYWALL = "subscribe"
     const val EVENT_PHOTOS = "event-photos"
     const val ADD_EVENT_PHOTO = "event-photos/new"
