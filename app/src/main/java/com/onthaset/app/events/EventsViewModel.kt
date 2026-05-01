@@ -48,7 +48,14 @@ class EventDetailViewModel @Inject constructor(
     private val _event = MutableStateFlow<Event?>(null)
     val event: StateFlow<Event?> = _event.asStateFlow()
 
+    private val _deleted = MutableStateFlow(false)
+    val deleted: StateFlow<Boolean> = _deleted.asStateFlow()
+
     fun load(id: String) = viewModelScope.launch {
         _event.value = runCatching { repo.byId(id) }.getOrNull()
+    }
+
+    fun delete(id: String) = viewModelScope.launch {
+        runCatching { repo.delete(id) }.onSuccess { _deleted.value = true }
     }
 }

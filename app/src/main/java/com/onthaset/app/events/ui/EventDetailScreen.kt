@@ -27,6 +27,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,11 +54,18 @@ fun EventDetailScreen(
     onOpenPoster: (String) -> Unit,
     onReport: (String, String) -> Unit,
     onOpenWeather: (Double, Double, String) -> Unit,
+    onEdit: (String) -> Unit,
+    onDelete: (String) -> Unit,
+    currentUserId: String?,
     viewModel: EventDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(eventId) { viewModel.load(eventId) }
     val event by viewModel.event.collectAsStateWithLifecycle()
+    val deleted by viewModel.deleted.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    LaunchedEffect(deleted) { if (deleted) onDelete(eventId) }
 
     Scaffold(
         containerColor = Color.Black,
@@ -86,7 +96,16 @@ fun EventDetailScreen(
                             Text("Share", color = Yellow)
                         }
                     }
-                    if (current?.id != null) {
+                    val isOwner = current != null && currentUserId != null &&
+                        current.postedByUserId == currentUserId
+                    if (isOwner && current?.id != null) {
+                        TextButton(onClick = { onEdit(current.id) }) {
+                            Text("Edit", color = Yellow)
+                        }
+                        TextButton(onClick = { showDeleteConfirm = true }) {
+                            Text("Delete", color = Color(0xFFFF6B6B))
+                        }
+                    } else if (current?.id != null) {
                         TextButton(onClick = { onReport(current.id, current.title) }) {
                             Text("Report", color = Color(0xFFFF6B6B))
                         }
@@ -149,6 +168,23 @@ fun EventDetailScreen(
                 )
             }
         }
+    }
+
+    if (showDeleteConfirm) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete this event?") },
+            text = { Text("This permanently removes the event from On Tha Set.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteConfirm = false
+                    event?.id?.let(viewModel::delete)
+                }) { Text("Delete", color = Color(0xFFFF6B6B)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
+            },
+        )
     }
 }
 

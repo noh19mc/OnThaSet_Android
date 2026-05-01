@@ -28,7 +28,11 @@ data class CreateEventState(
     val error: String? = null,
     val flyerUri: Uri? = null,
     val justSaved: Boolean = false,
+    val justDeleted: Boolean = false,
     val needsSubscription: Boolean = false,
+    /** Set when the screen is in edit mode — pre-populates the form. */
+    val editing: Event? = null,
+    val isLoadingEdit: Boolean = false,
 )
 
 @HiltViewModel
@@ -48,6 +52,23 @@ class CreateEventViewModel @Inject constructor(
     fun setFlyer(uri: Uri?) { _state.value = _state.value.copy(flyerUri = uri) }
     fun reset() { _state.value = CreateEventState() }
 
+    fun loadForEdit(eventId: String) = viewModelScope.launch {
+        _state.value = _state.value.copy(isLoadingEdit = true, error = null)
+        runCatching { events.byId(eventId) }
+            .onSuccess { e ->
+                _state.value = _state.value.copy(isLoadingEdit = false, editing = e)
+            }
+            .onFailure {
+                _state.value = _state.value.copy(isLoadingEdit = false, error = it.message ?: "Couldn't load event")
+            }
+    }
+
+    fun delete(eventId: String) = viewModelScope.launch {
+        runCatching { events.delete(eventId) }
+            .onSuccess { _state.value = CreateEventState(justDeleted = true) }
+            .onFailure { _state.value = _state.value.copy(error = it.message ?: "Delete failed") }
+    }
+
     fun submit(
         title: String,
         date: Instant,
@@ -59,6 +80,7 @@ class CreateEventViewModel @Inject constructor(
         zip: String,
         details: String,
         price: String,
+        editingId: String? = null,
     ) = viewModelScope.launch {
         if (title.isBlank()) {
             _state.value = _state.value.copy(error = "Add a title.")
@@ -75,11 +97,13 @@ class CreateEventViewModel @Inject constructor(
         }
 
         // Match iOS: subscribers post freely; everyone else needs at least one
-        // single-post credit (purchased via the $0.99 IAP).
+        // single-post credit (purchased via the $0.99 IAP). Edits don't burn a credit
+        // since the original post already paid for it.
+        val isEdit = editingId != null
         val profile = runCatching { profiles.byUserId(signedIn.userId) }.getOrNull()
         val hasSubscription = profile?.hasSubscription == true
-        val hasCredit = !hasSubscription && postCredits.count() > 0
-        if (!hasSubscription && !hasCredit) {
+        val hasCredit = !isEdit && !hasSubscription && postCredits.count() > 0
+        if (!isEdit && !hasSubscription && !hasCredit) {
             _state.value = _state.value.copy(
                 error = "Posting events requires a subscription or a single-post pass.",
                 needsSubscription = true,
@@ -111,24 +135,42 @@ class CreateEventViewModel @Inject constructor(
             val fullAddress = listOf(street, city, state, zip).filter { it.isNotBlank() }.joinToString(", ")
             val coords = geocoder.geocode(fullAddress)
 
-            events.create(
-                title = title.trim(),
-                date = date,
-                category = category.raw,
-                locationName = combinedLocation,
-                details = details.trim(),
-                price = price.trim().ifBlank { "0.00" },
-                latitude = coords?.latitude ?: 0.0,
-                longitude = coords?.longitude ?: 0.0,
-                postedByUserId = signedIn.userId,
-                postedByName = displayName,
-                imageUrl = flyerUrl,
-            )
+            // For edits, fall back to the existing image URL when no new flyer was picked.
+            val finalImageUrl = flyerUrl ?: _state.value.editing?.imageUrl
+
+            if (editingId != null) {
+                events.update(
+                    id = editingId,
+                    title = title.trim(),
+                    date = date,
+                    category = category.raw,
+                    locationName = combinedLocation,
+                    details = details.trim(),
+                    price = price.trim().ifBlank { "0.00" },
+                    latitude = coords?.latitude ?: 0.0,
+                    longitude = coords?.longitude ?: 0.0,
+                    imageUrl = finalImageUrl,
+                )
+            } else {
+                events.create(
+                    title = title.trim(),
+                    date = date,
+                    category = category.raw,
+                    locationName = combinedLocation,
+                    details = details.trim(),
+                    price = price.trim().ifBlank { "0.00" },
+                    latitude = coords?.latitude ?: 0.0,
+                    longitude = coords?.longitude ?: 0.0,
+                    postedByUserId = signedIn.userId,
+                    postedByName = displayName,
+                    imageUrl = flyerUrl,
+                )
+            }
         }.onFailure { e ->
             _state.value = _state.value.copy(isUploading = false, error = e.message ?: "Post failed")
         }.onSuccess {
-            // Burn the credit only after the post actually lands.
-            if (!hasSubscription) postCredits.consumeOne()
+            // Burn the credit only after the create actually lands. Edits don't cost.
+            if (!isEdit && !hasSubscription) postCredits.consumeOne()
             _state.value = CreateEventState(justSaved = true)
         }
     }

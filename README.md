@@ -97,6 +97,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Event sharing — system share sheet with formatted text (icon + title + date/time + location + price + details).
 - [x] Google Play Billing — paywall offers two paths matching iOS: **$2.99/mo subscription** (4 posts per cycle, syncs `users.has_subscription`) **OR** **$0.99 one-time single-event post** (consumed via `ConsumePurchase` so it can be re-bought, grants a credit stored device-local in DataStore that the create-event flow burns on submit). Configure via `BILLING_SUBSCRIPTION_PRODUCT_ID` and `BILLING_SINGLE_POST_PRODUCT_ID`. Server-side validation (Real-Time Developer Notifications webhook) is recommended before production.
 - [x] First-launch liability + terms acceptance — full-screen `LegalAcceptanceScreen` with the EVENT LIABILITY NOTICE, two required checkboxes (Terms / Privacy + liability acknowledgment), and a gated "AGREE TO CONTINUE" button. Acceptance is versioned in DataStore so future legal-text updates can require re-acceptance.
+- [x] Edit / delete event — owner-only actions on EventDetailScreen (gated on `posted_by_user_id == auth.uid`). Edit reuses the create form pre-populated with the existing event; delete is a confirm-dialog → DELETE → pop. Edits don't burn a single-post credit since the original post already paid for it.
 
 ## Differences from iOS (intentional, for now)
 

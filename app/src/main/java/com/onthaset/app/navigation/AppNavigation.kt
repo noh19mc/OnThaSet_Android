@@ -210,6 +210,7 @@ fun AppNavigation() {
                 arguments = listOf(navArgument("id") { type = NavType.StringType }),
             ) { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id").orEmpty()
+                val signedInUserId = (authState as? AuthState.SignedIn)?.userId
                 EventDetailScreen(
                     eventId = id,
                     onBack = { navController.popBackStack() },
@@ -218,6 +219,22 @@ fun AppNavigation() {
                     onOpenWeather = { lat, lng, label ->
                         navController.navigate(Routes.weatherFor(lat, lng, label))
                     },
+                    onEdit = { eventId -> navController.navigate(Routes.editEvent(eventId)) },
+                    // ViewModel handles the actual delete; this just pops the screen on success.
+                    onDelete = { _ -> navController.popBackStack() },
+                    currentUserId = signedInUserId,
+                )
+            }
+            composable(
+                route = Routes.EDIT_EVENT,
+                arguments = listOf(navArgument("id") { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id").orEmpty()
+                CreateEventScreen(
+                    onBack = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() },
+                    onSubscribe = { navController.navigate(Routes.PAYWALL) },
+                    editingEventId = id,
                 )
             }
             composable(

@@ -66,7 +66,49 @@ class EventsRepository @Inject constructor(
             )
         )
     }
+
+    suspend fun update(
+        id: String,
+        title: String,
+        date: Instant,
+        category: String,
+        locationName: String,
+        details: String,
+        price: String,
+        latitude: Double,
+        longitude: Double,
+        imageUrl: String?,
+    ) {
+        postgrest.from("events").update(
+            EventUpdate(
+                title = title,
+                date = date,
+                category = category,
+                locationName = locationName,
+                details = details,
+                price = price,
+                latitude = latitude,
+                longitude = longitude,
+                imageUrl = imageUrl,
+            )
+        ) {
+            filter { eq("id", id) }
+        }
+    }
 }
+
+@Serializable
+internal data class EventUpdate(
+    val title: String,
+    val date: Instant,
+    val category: String,
+    @SerialName("location_name") val locationName: String,
+    val details: String,
+    val price: String,
+    val latitude: Double,
+    val longitude: Double,
+    @SerialName("image_url") val imageUrl: String?,
+)
 
 @Serializable
 internal data class EventInsert(

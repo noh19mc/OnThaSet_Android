@@ -75,10 +75,16 @@ fun CreateEventScreen(
     onBack: () -> Unit,
     onSaved: () -> Unit,
     onSubscribe: () -> Unit,
+    editingEventId: String? = null,
     viewModel: CreateEventViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    LaunchedEffect(editingEventId) {
+        if (editingEventId != null && state.editing?.id != editingEventId) {
+            viewModel.loadForEdit(editingEventId)
+        }
+    }
     LaunchedEffect(state.justSaved) {
         if (state.justSaved) {
             viewModel.reset()
@@ -92,19 +98,25 @@ fun CreateEventScreen(
         }
     }
 
-    var title by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf(EventCategory.Community) }
+    val editing = state.editing
+    val isEdit = editingEventId != null
+    val initialParts = remember(editing) { editing?.locationName?.split('|').orEmpty() }
+
+    var title by remember(editing) { mutableStateOf(editing?.title ?: "") }
+    var category by remember(editing) {
+        mutableStateOf(editing?.categoryEnum ?: EventCategory.Community)
+    }
     val now = remember { kotlinx.datetime.Clock.System.now() }
-    var dateTime by remember { mutableStateOf(now) }
+    var dateTime by remember(editing) { mutableStateOf(editing?.date ?: now) }
     var showDate by remember { mutableStateOf(false) }
     var showTime by remember { mutableStateOf(false) }
-    var venue by remember { mutableStateOf("") }
-    var street by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("") }
-    var stateName by remember { mutableStateOf("") }
-    var zip by remember { mutableStateOf("") }
-    var details by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
+    var venue by remember(editing) { mutableStateOf(initialParts.getOrNull(0)?.trim().orEmpty()) }
+    var street by remember(editing) { mutableStateOf(initialParts.getOrNull(1)?.trim().orEmpty()) }
+    var city by remember(editing) { mutableStateOf(initialParts.getOrNull(2)?.trim().orEmpty()) }
+    var stateName by remember(editing) { mutableStateOf(initialParts.getOrNull(3)?.trim().orEmpty()) }
+    var zip by remember(editing) { mutableStateOf(initialParts.getOrNull(4)?.trim().orEmpty()) }
+    var details by remember(editing) { mutableStateOf(editing?.details.orEmpty()) }
+    var price by remember(editing) { mutableStateOf(editing?.price?.takeIf { it != "0.00" }.orEmpty()) }
 
     val pickFlyer = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia(),
@@ -115,7 +127,13 @@ fun CreateEventScreen(
         containerColor = Color.Black,
         topBar = {
             TopAppBar(
-                title = { Text("Post an Event", color = Color.White, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        if (isEdit) "Edit Event" else "Post an Event",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
                 navigationIcon = { TextButton(onClick = onBack) { Text("Cancel", color = Yellow) } },
             )
@@ -179,6 +197,7 @@ fun CreateEventScreen(
                         zip = zip,
                         details = details,
                         price = price,
+                        editingId = editingEventId,
                     )
                 },
                 enabled = !state.isUploading,
@@ -189,7 +208,7 @@ fun CreateEventScreen(
                 if (state.isUploading) {
                     CircularProgressIndicator(color = Color.Black, strokeWidth = 2.dp, modifier = Modifier.size(22.dp))
                 } else {
-                    Text("Post Event", fontWeight = FontWeight.Bold)
+                    Text(if (isEdit) "Save Changes" else "Post Event", fontWeight = FontWeight.Bold)
                 }
             }
         }

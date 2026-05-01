@@ -8,7 +8,10 @@ object Routes {
     const val EVENTS = "events"
     const val EVENT_DETAIL = "event/{id}"
     const val CREATE_EVENT = "events/new"
+    const val EDIT_EVENT = "event/{id}/edit"
     const val REPORT_EVENT = "event/{id}/report?title={title}"
+
+    fun editEvent(id: String) = "event/$id/edit"
 
     fun reportEvent(id: String, title: String): String {
         val encoded = java.net.URLEncoder.encode(title, "UTF-8")
