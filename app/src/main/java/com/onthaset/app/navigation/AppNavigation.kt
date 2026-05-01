@@ -41,6 +41,8 @@ import com.onthaset.app.events.ui.EventDetailScreen
 import com.onthaset.app.events.ui.EventsScreen
 import com.onthaset.app.events.ui.NationalCalendarScreen
 import com.onthaset.app.home.MoreScreen
+import com.onthaset.app.legal.LegalAcceptanceViewModel
+import com.onthaset.app.legal.ui.LegalAcceptanceScreen
 import com.onthaset.app.profile.ui.EditProfileScreen
 import com.onthaset.app.profile.ui.OnboardingScreen
 import com.onthaset.app.profile.ui.ProfileScreen
@@ -58,6 +60,26 @@ import com.onthaset.app.weather.ui.WeatherScreen
 
 @Composable
 fun AppNavigation() {
+    val legalViewModel: LegalAcceptanceViewModel = hiltViewModel()
+    val legalAccepted by legalViewModel.accepted.collectAsStateWithLifecycle()
+
+    // Block everything else until the EVENT LIABILITY NOTICE has been acknowledged.
+    // null = still reading from DataStore; show splash. false = show acceptance screen.
+    when (legalAccepted) {
+        null -> {
+            SplashLoading()
+            return
+        }
+        false -> {
+            LegalAcceptanceScreen(
+                onAccepted = { /* StateFlow update will flip this branch on next recompose. */ },
+                viewModel = legalViewModel,
+            )
+            return
+        }
+        true -> Unit // fall through to the rest of the app
+    }
+
     val authViewModel: AuthViewModel = hiltViewModel()
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val navController = rememberNavController()

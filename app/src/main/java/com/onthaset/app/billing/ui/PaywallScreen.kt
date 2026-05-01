@@ -2,19 +2,23 @@ package com.onthaset.app.billing.ui
 
 import android.app.Activity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -51,30 +55,87 @@ fun PaywallScreen(
         containerColor = Color.Black,
         topBar = {
             TopAppBar(
-                title = { Text("Subscription", color = Color.White, fontWeight = FontWeight.Black) },
+                title = { Text("CHOOSE YOUR PLAN", color = Color.White, fontWeight = FontWeight.Black) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back", color = Yellow) } },
+                navigationIcon = { TextButton(onClick = onBack) { Text("Close", color = Yellow) } },
             )
         },
     ) { padding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black)
                 .padding(padding)
-                .padding(24.dp),
-            contentAlignment = Alignment.Center,
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when {
-                state.isLoading -> CircularProgressIndicator(color = Yellow)
+                state.isLoading ->
+                    Box(modifier = Modifier.fillMaxSize().padding(48.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Yellow)
+                    }
                 state.notConfigured -> NotConfigured()
                 state.alreadySubscribed -> AlreadySubscribed()
-                else -> Offer(
-                    price = state.priceText,
-                    period = state.billingPeriodText,
-                    error = state.error,
-                    onSubscribe = { viewModel.launchPurchase(context as Activity) },
-                )
+                else -> {
+                    Text(
+                        "Select how you'd like to post events to the community.",
+                        color = Color.LightGray,
+                        fontSize = 13.sp,
+                        textAlign = TextAlign.Center,
+                    )
+
+                    if (state.singlePostCredits > 0) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0x33FFD600), RoundedCornerShape(8.dp))
+                                .padding(12.dp),
+                        ) {
+                            Text(
+                                "You have ${state.singlePostCredits} single-post credit(s) ready to use.",
+                                color = Yellow,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+
+                    if (state.subscription != null) {
+                        SubscriptionCard(
+                            price = state.subscriptionPrice,
+                            period = state.subscriptionPeriod,
+                            onSubscribe = { viewModel.launchSubscription(context as Activity) },
+                        )
+                    }
+
+                    if (state.subscription != null && state.singlePost != null) {
+                        Text("or", color = Color.Gray, fontSize = 13.sp)
+                    }
+
+                    if (state.singlePost != null) {
+                        SinglePostCard(
+                            price = state.singlePostPrice,
+                            onPurchase = { viewModel.launchSinglePost(context as Activity) },
+                        )
+                    }
+
+                    state.error?.let { Text(it, color = Color(0xFFFF6B6B), fontSize = 13.sp) }
+
+                    TextButton(onClick = onBack) {
+                        Text(
+                            "GO BACK",
+                            color = Yellow,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .border(1.dp, Yellow, RoundedCornerShape(8.dp))
+                                .padding(horizontal = 24.dp, vertical = 8.dp),
+                        )
+                    }
+                }
             }
         }
     }
@@ -87,6 +148,77 @@ fun PaywallScreen(
             text = { Text("Subscription is active. Post events anytime.") },
         )
     }
+    if (state.justGrantedSinglePost) {
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.acknowledgeSinglePost()
+                onBack()
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.acknowledgeSinglePost()
+                    onBack()
+                }) { Text("Post It") }
+            },
+            title = { Text("Credit Added") },
+            text = { Text("You've got 1 single-post credit. Tap Post Event when you're ready.") },
+        )
+    }
+}
+
+@Composable
+private fun SubscriptionCard(price: String?, period: String?, onSubscribe: () -> Unit) {
+    Card(
+        onClick = onSubscribe,
+        colors = CardDefaults.cardColors(containerColor = Yellow, contentColor = Color.Black),
+        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("⭐", fontSize = 14.sp)
+                Spacer(Modifier.size(4.dp))
+                Text("BEST VALUE", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 11.sp)
+            }
+            Text("Monthly Subscription", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 18.sp)
+            Text(price ?: "—", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 28.sp)
+            Text(
+                "4 posts ${period ?: "monthly"} · Cancel anytime",
+                color = Color.Black,
+                fontSize = 13.sp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SinglePostCard(price: String?, onPurchase: () -> Unit) {
+    Card(
+        onClick = onPurchase,
+        colors = CardDefaults.cardColors(containerColor = Color(0x14FFFFFF), contentColor = Color.White),
+        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, Yellow, RoundedCornerShape(14.dp)),
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text("Single Event Post", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(price ?: "—", color = Yellow, fontWeight = FontWeight.Black, fontSize = 24.sp)
+            Text(
+                "One-time payment · Use it on your next event",
+                color = Color.LightGray,
+                fontSize = 12.sp,
+            )
+        }
+    }
 }
 
 @Composable
@@ -95,8 +227,8 @@ private fun NotConfigured() {
         Text("BILLING NOT CONFIGURED", color = Yellow, fontWeight = FontWeight.Black, fontSize = 14.sp)
         Spacer(Modifier.size(8.dp))
         Text(
-            "Set BILLING_SUBSCRIPTION_PRODUCT_ID in local.properties and matching subscription " +
-                "product in Google Play Console to enable subscriptions.",
+            "Set BILLING_SUBSCRIPTION_PRODUCT_ID and/or BILLING_SINGLE_POST_PRODUCT_ID in " +
+                "local.properties (with matching products in Google Play Console) to enable purchases.",
             color = Color.Gray,
             fontSize = 13.sp,
             textAlign = TextAlign.Center,
@@ -115,49 +247,6 @@ private fun AlreadySubscribed() {
             "Manage or cancel from Google Play → Account → Subscriptions.",
             color = Color.Gray,
             fontSize = 13.sp,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-private fun Offer(
-    price: String?,
-    period: String?,
-    error: String?,
-    onSubscribe: () -> Unit,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Text("ON THA SET PRO", color = Yellow, fontWeight = FontWeight.Black, fontSize = 16.sp)
-        Text("Post up to 4 events per month", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 22.sp, textAlign = TextAlign.Center)
-        Text("Plus profile photos, bike builds, ride photos.", color = Color.Gray, fontSize = 13.sp, textAlign = TextAlign.Center)
-
-        Spacer(Modifier.size(12.dp))
-
-        if (price != null) {
-            Text(price, color = Yellow, fontWeight = FontWeight.Black, fontSize = 32.sp)
-            period?.let { Text(it, color = Color.Gray, fontSize = 13.sp) }
-        }
-
-        error?.let { Text(it, color = Color(0xFFFF6B6B), fontSize = 13.sp) }
-
-        Spacer(Modifier.size(12.dp))
-        Button(
-            onClick = onSubscribe,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Yellow, contentColor = Color.Black),
-        ) {
-            Text("Subscribe", fontWeight = FontWeight.Bold)
-        }
-        Text(
-            "Billed through Google Play. Cancel anytime.",
-            color = Color.Gray,
-            fontSize = 11.sp,
             textAlign = TextAlign.Center,
         )
     }

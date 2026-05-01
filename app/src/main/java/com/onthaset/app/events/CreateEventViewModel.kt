@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.onthaset.app.auth.AuthRepository
 import com.onthaset.app.auth.AuthState
+import com.onthaset.app.billing.PostCreditsRepository
 import com.onthaset.app.imaging.Buckets
 import com.onthaset.app.imaging.StorageRepository
 import com.onthaset.app.imaging.toCompressedJpeg
@@ -37,6 +38,7 @@ class CreateEventViewModel @Inject constructor(
     private val auth: AuthRepository,
     private val storage: StorageRepository,
     private val geocoder: Geocoder,
+    private val postCredits: PostCreditsRepository,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
@@ -72,11 +74,14 @@ class CreateEventViewModel @Inject constructor(
             return@launch
         }
 
-        // Match iOS: only subscribers can post events.
+        // Match iOS: subscribers post freely; everyone else needs at least one
+        // single-post credit (purchased via the $0.99 IAP).
         val profile = runCatching { profiles.byUserId(signedIn.userId) }.getOrNull()
-        if (profile?.hasSubscription != true) {
+        val hasSubscription = profile?.hasSubscription == true
+        val hasCredit = !hasSubscription && postCredits.count() > 0
+        if (!hasSubscription && !hasCredit) {
             _state.value = _state.value.copy(
-                error = "Posting events requires a subscription.",
+                error = "Posting events requires a subscription or a single-post pass.",
                 needsSubscription = true,
             )
             return@launch
@@ -122,6 +127,8 @@ class CreateEventViewModel @Inject constructor(
         }.onFailure { e ->
             _state.value = _state.value.copy(isUploading = false, error = e.message ?: "Post failed")
         }.onSuccess {
+            // Burn the credit only after the post actually lands.
+            if (!hasSubscription) postCredits.consumeOne()
             _state.value = CreateEventState(justSaved = true)
         }
     }

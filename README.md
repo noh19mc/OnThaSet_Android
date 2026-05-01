@@ -27,7 +27,8 @@ app/src/main/java/com/onthaset/app/
 ├── bikes/        # Bike Builds feed + create with before/after photos
 ├── eventphotos/  # Ride Photos feed + upload (event_photos table)
 ├── ads/          # AdMob banner Composable
-├── billing/      # Google Play Billing — subscription paywall
+├── billing/      # Google Play Billing — subscription + single-post IAP, post-credits store
+├── legal/        # First-launch liability + terms acceptance gate
 ├── directory/    # Local Business Directory (`ads` table — businesses paying to be listed)
 ├── admin/        # PIN-gated event moderation
 ├── weather/      # 5-day Ride Forecast (Open-Meteo) with rider safety chip
@@ -94,7 +95,8 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] Event reporting — flag inappropriate / spam / duplicate events, written to `event_reports` for moderators.
 - [x] Local Business Directory — read-only feed of active rows from the `ads` table with one-tap Call / Website actions; sponsored + premium listings float to the top. "Advertise" action in the top bar opens a submission form (Basic / Featured / Premium plan tiers, business details, optional banner upload) that inserts into `ads` with status = pending for admin approval.
 - [x] Event sharing — system share sheet with formatted text (icon + title + date/time + location + price + details).
-- [x] Google Play Billing — paywall reads subscription product from Play Console (configured via `BILLING_SUBSCRIPTION_PRODUCT_ID`), launches the Play purchase flow, acknowledges the purchase, and writes `users.has_subscription = true` so iOS sees the upgrade. Server-side validation (Real-Time Developer Notifications webhook) is recommended before production.
+- [x] Google Play Billing — paywall offers two paths matching iOS: **$2.99/mo subscription** (4 posts per cycle, syncs `users.has_subscription`) **OR** **$0.99 one-time single-event post** (consumed via `ConsumePurchase` so it can be re-bought, grants a credit stored device-local in DataStore that the create-event flow burns on submit). Configure via `BILLING_SUBSCRIPTION_PRODUCT_ID` and `BILLING_SINGLE_POST_PRODUCT_ID`. Server-side validation (Real-Time Developer Notifications webhook) is recommended before production.
+- [x] First-launch liability + terms acceptance — full-screen `LegalAcceptanceScreen` with the EVENT LIABILITY NOTICE, two required checkboxes (Terms / Privacy + liability acknowledgment), and a gated "AGREE TO CONTINUE" button. Acceptance is versioned in DataStore so future legal-text updates can require re-acceptance.
 
 ## Differences from iOS (intentional, for now)
 

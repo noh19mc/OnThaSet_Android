@@ -39,6 +39,11 @@ android {
             "BILLING_SUBSCRIPTION_PRODUCT_ID",
             "\"${localOrEmpty("BILLING_SUBSCRIPTION_PRODUCT_ID")}\"",
         )
+        buildConfigField(
+            "String",
+            "BILLING_SINGLE_POST_PRODUCT_ID",
+            "\"${localOrEmpty("BILLING_SINGLE_POST_PRODUCT_ID")}\"",
+        )
 
         // Manifest placeholders. Empty ADMOB_APP_ID would fail the SDK init, so fall back to
         // Google's official "test" app ID when no key is configured — keeps debug builds working.
