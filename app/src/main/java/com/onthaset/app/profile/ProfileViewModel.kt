@@ -34,10 +34,14 @@ enum class ImageKind { Profile, Background }
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val profiles: ProfileRepository,
+    private val stats: ProfileStatsRepository,
     private val auth: AuthRepository,
     private val storage: StorageRepository,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
+
+    private val _stats = MutableStateFlow(ProfileStats.Empty)
+    val statsFlow: StateFlow<ProfileStats> = _stats.asStateFlow()
 
     private val _state = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
     val state: StateFlow<ProfileUiState> = _state.asStateFlow()
@@ -72,7 +76,10 @@ class ProfileViewModel @Inject constructor(
             return@launch
         }
         runCatching { profiles.ensure(signedIn.userId, signedIn.email.orEmpty()) }
-            .onSuccess { _state.value = ProfileUiState.Ready(it) }
+            .onSuccess {
+                _state.value = ProfileUiState.Ready(it)
+                _stats.value = stats.forUser(signedIn.userId)
+            }
             .onFailure { _state.value = ProfileUiState.Error(it.message ?: "Failed to load profile") }
     }
 

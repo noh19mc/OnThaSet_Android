@@ -47,10 +47,14 @@ private val Yellow = Color(0xFFFFD600)
 fun PublicProfileScreen(
     userId: String,
     onBack: () -> Unit,
+    onPostEvent: () -> Unit,
+    onUploadPhoto: () -> Unit,
+    onPostBuild: () -> Unit,
     viewModel: PublicProfileViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(userId) { viewModel.load(userId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val stats by viewModel.statsFlow.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = Color.Black,
@@ -70,14 +74,26 @@ fun PublicProfileScreen(
                     }
                 PublicProfileUiState.NotFound -> Centered("Rider hasn't set up a profile yet.")
                 is PublicProfileUiState.Error -> Centered(s.message)
-                is PublicProfileUiState.Ready -> Body(s.profile)
+                is PublicProfileUiState.Ready -> Body(
+                    p = s.profile,
+                    stats = stats,
+                    onPostEvent = onPostEvent,
+                    onUploadPhoto = onUploadPhoto,
+                    onPostBuild = onPostBuild,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun Body(p: UserProfile) {
+private fun Body(
+    p: UserProfile,
+    stats: com.onthaset.app.profile.ProfileStats,
+    onPostEvent: () -> Unit,
+    onUploadPhoto: () -> Unit,
+    onPostBuild: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -126,15 +142,16 @@ private fun Body(p: UserProfile) {
             if (p.bio.isNotBlank()) Text(p.bio, color = Color.LightGray, fontSize = 14.sp)
         }
 
-        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Header("Riding")
-            ReadField("Club", p.club)
-            ReadField("Bike", p.favoriteRide)
-            ReadField("Riding Since", p.ridingSince)
-            ReadField("Preferred Ride", p.preferredRideType)
-            ReadField("Favorite Route", p.favoriteRoute)
+        ProfileStatsGrid(stats = stats, modifier = Modifier.padding(horizontal = 20.dp))
+        RidingInfoCard(profile = p, modifier = Modifier.padding(horizontal = 20.dp))
+        QuickActionTiles(
+            onPostEvent = onPostEvent,
+            onUploadPhoto = onUploadPhoto,
+            onPostBuild = onPostBuild,
+            modifier = Modifier.padding(horizontal = 20.dp),
+        )
 
-            Spacer(Modifier.height(8.dp))
+        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Header("Social")
             ReadField("Instagram", p.instagramHandle)
             ReadField("TikTok", p.tiktokHandle)

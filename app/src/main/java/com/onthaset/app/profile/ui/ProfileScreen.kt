@@ -51,9 +51,13 @@ private val Yellow = Color(0xFFFFD600)
 fun ProfileScreen(
     onBack: () -> Unit,
     onEdit: () -> Unit,
+    onPostEvent: () -> Unit,
+    onUploadPhoto: () -> Unit,
+    onPostBuild: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val stats by viewModel.statsFlow.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = Color.Black,
@@ -82,14 +86,26 @@ fun ProfileScreen(
                 ProfileUiState.Loading -> Loader()
                 ProfileUiState.NotSignedIn -> Centered("Sign in to see your profile.")
                 is ProfileUiState.Error -> ErrorPane(s.message, onRetry = viewModel::load)
-                is ProfileUiState.Ready -> ProfileBody(s.profile)
+                is ProfileUiState.Ready -> ProfileBody(
+                    p = s.profile,
+                    stats = stats,
+                    onPostEvent = onPostEvent,
+                    onUploadPhoto = onUploadPhoto,
+                    onPostBuild = onPostBuild,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ProfileBody(p: UserProfile) {
+private fun ProfileBody(
+    p: UserProfile,
+    stats: com.onthaset.app.profile.ProfileStats,
+    onPostEvent: () -> Unit,
+    onUploadPhoto: () -> Unit,
+    onPostBuild: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -128,38 +144,38 @@ private fun ProfileBody(p: UserProfile) {
         }
         Spacer(Modifier.height(48.dp))
         Column(modifier = Modifier.padding(horizontal = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            p.displayName.ifBlank { "Rider" },
-            color = Color.White,
-            fontWeight = FontWeight.Black,
-            fontSize = 24.sp,
+            Text(
+                p.displayName.ifBlank { "Rider" },
+                color = Color.White,
+                fontWeight = FontWeight.Black,
+                fontSize = 24.sp,
+            )
+            if (p.hometown.isNotBlank()) Text(p.hometown, color = Yellow, fontSize = 14.sp)
+            if (p.bio.isNotBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Text(p.bio, color = Color.LightGray, fontSize = 14.sp)
+            }
+        }
+
+        ProfileStatsGrid(stats = stats, modifier = Modifier.padding(horizontal = 20.dp))
+        RidingInfoCard(profile = p, modifier = Modifier.padding(horizontal = 20.dp))
+        QuickActionTiles(
+            onPostEvent = onPostEvent,
+            onUploadPhoto = onUploadPhoto,
+            onPostBuild = onPostBuild,
+            modifier = Modifier.padding(horizontal = 20.dp),
         )
-        if (p.hometown.isNotBlank()) Text(p.hometown, color = Yellow, fontSize = 14.sp)
-        if (p.bio.isNotBlank()) {
-            Spacer(Modifier.height(4.dp))
-            Text(p.bio, color = Color.LightGray, fontSize = 14.sp)
-        }
 
-        Spacer(Modifier.height(8.dp))
-
-        Section("Riding") {
-            Field("Club", p.club)
-            Field("Bike", p.favoriteRide)
-            Field("Riding Since", p.ridingSince)
-            Field("Preferred Ride", p.preferredRideType)
-            Field("Favorite Route", p.favoriteRoute)
-        }
-
-        Section("Social") {
-            Field("Instagram", p.instagramHandle)
-            Field("TikTok", p.tiktokHandle)
-            Field("YouTube", p.youtubeChannel)
-            Field("Facebook", p.facebookHandle)
-        }
-
-        Section("Account") {
-            Field("Email", p.email)
-        }
+        Column(modifier = Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Section("Social") {
+                Field("Instagram", p.instagramHandle)
+                Field("TikTok", p.tiktokHandle)
+                Field("YouTube", p.youtubeChannel)
+                Field("Facebook", p.facebookHandle)
+            }
+            Section("Account") {
+                Field("Email", p.email)
+            }
         }
         Spacer(Modifier.height(20.dp))
         AdMobBanner()

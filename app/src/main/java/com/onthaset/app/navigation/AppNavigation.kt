@@ -257,7 +257,20 @@ fun AppNavigation() {
                 arguments = listOf(navArgument("userId") { type = NavType.StringType }),
             ) { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId").orEmpty()
-                PublicProfileScreen(userId = userId, onBack = { navController.popBackStack() })
+                PublicProfileScreen(
+                    userId = userId,
+                    onBack = { navController.popBackStack() },
+                    onPostEvent = { navController.navigate(Routes.CREATE_EVENT) },
+                    onUploadPhoto = {
+                        // Push the feed first so the Add screen's parent-scoped Hilt VM resolves.
+                        navController.navigate(Routes.EVENT_PHOTOS) { launchSingleTop = true }
+                        navController.navigate(Routes.ADD_EVENT_PHOTO)
+                    },
+                    onPostBuild = {
+                        navController.navigate(Routes.BIKE_BUILDS) { launchSingleTop = true }
+                        navController.navigate(Routes.ADD_BIKE_BUILD)
+                    },
+                )
             }
             composable(Routes.NATIONAL_RUN_CALENDAR) {
                 NationalCalendarScreen(
@@ -278,6 +291,16 @@ fun AppNavigation() {
                 ProfileScreen(
                     onBack = { navController.popBackStack() },
                     onEdit = { navController.navigate(Routes.EDIT_PROFILE) },
+                    onPostEvent = { navController.navigate(Routes.CREATE_EVENT) },
+                    onUploadPhoto = {
+                        // Push the feed first so the Add screen's parent-scoped Hilt VM resolves.
+                        navController.navigate(Routes.EVENT_PHOTOS) { launchSingleTop = true }
+                        navController.navigate(Routes.ADD_EVENT_PHOTO)
+                    },
+                    onPostBuild = {
+                        navController.navigate(Routes.BIKE_BUILDS) { launchSingleTop = true }
+                        navController.navigate(Routes.ADD_BIKE_BUILD)
+                    },
                 )
             }
             composable(Routes.EDIT_PROFILE) {

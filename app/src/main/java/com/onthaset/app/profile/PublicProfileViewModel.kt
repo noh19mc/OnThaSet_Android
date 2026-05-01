@@ -19,16 +19,21 @@ sealed interface PublicProfileUiState {
 @HiltViewModel
 class PublicProfileViewModel @Inject constructor(
     private val profiles: ProfileRepository,
+    private val stats: ProfileStatsRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<PublicProfileUiState>(PublicProfileUiState.Loading)
     val state: StateFlow<PublicProfileUiState> = _state.asStateFlow()
+
+    private val _stats = MutableStateFlow(ProfileStats.Empty)
+    val statsFlow: StateFlow<ProfileStats> = _stats.asStateFlow()
 
     fun load(userId: String) = viewModelScope.launch {
         _state.value = PublicProfileUiState.Loading
         runCatching { profiles.byUserId(userId) }
             .onSuccess { p ->
                 _state.value = if (p == null) PublicProfileUiState.NotFound else PublicProfileUiState.Ready(p)
+                if (p != null) _stats.value = stats.forUser(userId)
             }
             .onFailure { _state.value = PublicProfileUiState.Error(it.message ?: "Failed") }
     }
