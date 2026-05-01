@@ -99,6 +99,7 @@ Storage buckets: `profile-images` (avatar + cover), `event-flyers` (event images
 - [x] First-launch liability + terms acceptance — full-screen `LegalAcceptanceScreen` with the EVENT LIABILITY NOTICE, two required checkboxes (Terms / Privacy + liability acknowledgment), and a gated "AGREE TO CONTINUE" button. Acceptance is versioned in DataStore so future legal-text updates can require re-acceptance.
 - [x] Edit / delete event — owner-only actions on EventDetailScreen (gated on `posted_by_user_id == auth.uid`). Edit reuses the create form pre-populated with the existing event; delete is a confirm-dialog → DELETE → pop. Edits don't burn a single-post credit since the original post already paid for it.
 - [x] Profile stats + RIDING INFO + quick-action tiles — both `ProfileScreen` and `PublicProfileScreen` now show a 3-cell stats grid (events / photos with `0/50` cap / builds, counts pulled via Postgrest `Count.EXACT`), a RIDING INFO card consolidating bike + riding-since + preferred ride + favorite route + club, and three colored shortcut tiles matching iOS (yellow Post Event / purple Event Photo / orange Bike Build).
+- [x] More-tab visual polish — hero image at top (the same `ONTHASET.png` from the iOS asset catalog), "What's On Tha Set Nearby" headline, prominent yellow-bordered ADVERTISE WITH US tile (with $19.99/mo Basic / Featured / Premium plan callouts) routing to the ad submission form, and an Exit-Demo banner that appears when in guest mode and routes back to the sign-in gate.
 
 ## Differences from iOS (intentional, for now)
 

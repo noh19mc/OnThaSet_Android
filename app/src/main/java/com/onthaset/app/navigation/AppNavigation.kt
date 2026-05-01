@@ -156,6 +156,7 @@ fun AppNavigation() {
                     onOpenPaywall = { navController.navigate(Routes.PAYWALL) },
                     onOpenAdmin = { navController.navigate(Routes.ADMIN) },
                     onOpenOnboarding = { navController.navigate(Routes.ONBOARDING) },
+                    onOpenSubmitAd = { navController.navigate(Routes.SUBMIT_AD) },
                     // Guest mode is a nav-layer flag separate from the auth session, so
                     // a real signOut() call does nothing for guests. Clear both here
                     // so "Sign Out" routes back to the gate either way.
